@@ -1,48 +1,26 @@
-# 📦 Flux AI: The Multimodal Receiving Auditor
+# Flux AI
 
-**Zero-shot autonomous auditor** for physical-to-digital warehouse receiving. Built for the **Multimodal Frontier Hackathon**.
+**Zero-shot autonomous auditor** for physical-to-digital warehouse receiving.
 
-Most agents only read text prompts. **Flux AI sees the real world.** We are targeting the massive **reality-data gap** in global supply chains, where physical pallets arrive but inventory systems rely on manual, error-prone data entry. 
-
-**Flux AI** uses **one photo** (paperwork + physical freight in the same frame): a vision model extracts structured lines, compares **expected paperwork vs. what’s physically visible**, then **auto-syncs** when clean or **pauses for human-in-the-loop (HITL) approval** before hitting an API-key protected inventory endpoint.
+Many systems only see what someone types after a truck arrives. **Flux AI** starts from **one photo** with **paperwork and freight in the same frame**: a vision model extracts structured lines, compares **what the document claims** to **what the image suggests is on the load**, then **syncs inventory automatically** when variance is clean or **stops for human approval** before a **key-protected** inventory API.
 
 ---
 
-## 🏆 Judging Criteria Alignment
+## Integrations
 
-Flux AI was built specifically to max out the Multimodal Frontier rubric (20% each):
+| Component | Role |
+|-----------|------|
+| **Google Gemini** | Multimodal extraction from dock imagery (`backend/app/services/gemini_service.py`). |
+| **Unkey** | `X-API-Key` on agent run and inventory sync; server uses `UNKEY_ROOT_KEY` for verify. |
+| **Railtracks** | `Flow` + `function_node` receiving pipeline (`backend/app/services/receiving_flow.py`). |
+| **Docker** | `backend/Dockerfile`, `docker-compose.yml` for deployment (e.g. cloud VPS or App Platform). |
+| **Senso Shipables** | Optional packaged skill under `shipables/flux-ai-receiving/`. |
 
-1. **Idea:** Addresses a massive real-world problem—grocery store and warehouse shrinkage—by using multimodal vision on physical cargo, rather than chat interfaces.
-2. **Autonomy:** Evaluates variance dynamically. If Expected = Actual (Zero Variance), the agent acts autonomously and syncs the ledger. If there's a discrepancy, it enforces policy by stopping and requesting human review.
-3. **Tool Use:** Integrates **5** distinct sponsor technologies (Gemini, Unkey, DigitalOcean, Railtracks, Shipables).
-4. **Technical Implementation:** A production-ready FastAPI backend using the `Railtracks` observability flow, secured by `Unkey`, and easily deployable via Docker (`DigitalOcean`).
-5. **Presentation:** Built alongside a bundled `/ui/` to visually explain the agent's cognitive path in 3 minutes.
-
----
-
-## 🛠️ Sponsor Integrations (Tool Use)
-
-| Sponsor | How we used it |
-|---------|----------------|
-| **Google Gemini** | True multimodal vision (`gemini-1.5-pro`). It reads the invoice text and counts the physical boxes in a single pass. (`app/services/gemini_service.py`) |
-| **Unkey** | Enforces zero-trust mutations. The agent and human approvals must pass an `X-API-Key` check to sync to inventory. (`app/services/inventory_service.py`) |
-| **Railtracks** | Agentic workflows. We use `Flow` and `function_node` to break the agent's path into observable, traceable blocks. (`app/services/receiving_flow.py`) |
-| **DigitalOcean** | Production inference. The entire backend is containerized (`backend/Dockerfile`) and ready for App Platform or a Droplet. |
-| **Senso.ai (Shipables)** | Packaged and published as the `flux-ai-receiving-auditor` skill on `shipables.dev` for 1-click installation. (`shipables/flux-ai-receiving/`) |
-
-*Note: The API returns an `X-Flux-Sponsor-Tools` header on all requests as proof of integration.*
+Responses include header **`X-Flux-Sponsor-Tools`** and **`GET /api/about`** for a machine-readable summary.
 
 ---
 
-## 📄 Hackathon Resources
-
-- 🎙️ **[DEMO_SCRIPT.md](DEMO_SCRIPT.md)**: Our strictly timed 3-minute pitch script for the judges.
-- ✅ **[SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md)**: Proof of completion for all Devpost requirements.
-- 🚀 **[winning_guidance.md](winning_guidance.md)**: Strategy mapping for the 5 judging criteria.
-
----
-
-## 🚀 Quick Start (Local Dev)
+## Quick start
 
 ```powershell
 cd backend
@@ -50,30 +28,34 @@ python -m venv .venv
 .\.venv\Scripts\activate
 pip install -r requirements.txt
 copy .env.example .env
-# Fill in your GEMINI_API_KEY and UNKEY_ROOT_KEY in the .env file
+# Set GEMINI_API_KEY; if UNKEY_ENABLED=true, set UNKEY_ROOT_KEY and use a valid X-API-Key from the client
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-- **Built-in UI:** [http://localhost:8000/ui/](http://localhost:8000/ui/)
-- **API Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
-- **Health Check:** `GET /health/ready`
+- **Operator UI:** http://localhost:8000/ui/
+- **OpenAPI:** http://localhost:8000/docs
+- **Readiness:** `GET /health/ready`
 
-## 🐳 Docker (DigitalOcean Deploy)
+## Docker
 
-```bash
+```powershell
 docker compose up --build
 ```
-Then navigate to `http://<your-droplet-ip>:8000/ui/`.
+
+Serve with the same environment variables as local `.env` (never commit `.env`).
 
 ---
 
-## 🧬 How the Agent Works (The Flow)
+## How it works
 
-1. **Physical Input:** Operator uploads a photo of the loading dock (invoice taped to a pallet).
-2. **Cognitive Pass (Gemini):** Extracts line items: `SKU`, `expected_qty`, and determines `actual_qty` from visual counting.
-3. **Variance Policy Engine (Railtracks):**
-   - **Zero Variance:** Agent bypasses UI, authenticates with Unkey, and updates the ERP automatically.
-   - **Variance Detected:** Agent halts execution (`autonomy: paused_for_hitl`) and returns the discrepancy table to the operator.
-4. **Governed Write (Unkey):** Operator clicks "Approve & Sync", triggering the final secure `POST /api/inventory/sync`.
+1. **Input** — Photo of dock + invoice/packing list in frame.
+2. **Extraction (Gemini)** — Structured line items, expected vs. inferred actual quantities.
+3. **Policy (Railtracks)** — Zero variance and auto-sync allowed → gated sync; otherwise paused for HITL and **`POST /api/inventory/sync`** with Unkey.
 
-This ensures autonomy where possible, and strict human safety where necessary.
+---
+
+## What belongs in Git
+
+Commit **source and config templates**: `backend/` application code, `requirements.txt`, `Dockerfile`, `docker-compose.yml`, `.env.example`, `.gitignore`, and this `README.md`.
+
+Do **not** commit: `.env` (secrets), `.venv/` or other virtualenvs, `__pycache__/`, IDE junk, or API keys. Optional local notes (`DEMO_SCRIPT.md`, `SUBMISSION_CHECKLIST.md`, etc.) can stay untracked with `.gitignore` if you prefer, or remain in the repo as non-runtime documentation.
