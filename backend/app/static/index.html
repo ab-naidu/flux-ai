@@ -1094,21 +1094,8 @@
 
     function show(obj) {
       document.getElementById("out").textContent = JSON.stringify(obj, null, 2);
-      const brief = obj.operator_brief || obj.previous_agent?.operator_brief;
-      if (brief) renderBrief(brief);
-      else if (obj.sync_result && obj.previous_agent) {
-        renderBrief({
-          headline: "Inventory update sent",
-          subtext: "Your approval was applied. Downstream response is in the technical JSON.",
-          next_action: "Start another delivery with a new photo.",
-          steps: [
-            { id: "u", label: "Photo received", state: "done" },
-            { id: "v", label: "Gemini read", state: "done" },
-            { id: "c", label: "Variance / approval", state: "done" },
-            { id: "s", label: "Inventory update", state: obj.sync_result.ok ? "done" : "error" },
-          ],
-        });
-      } else if (obj.error) {
+
+      if (obj.error) {
         renderBrief({
           headline: "Something blocked the run",
           subtext: typeof obj.body === "object" && obj.body.detail
@@ -1122,9 +1109,28 @@
             { label: "Sync", state: "skip" },
           ],
         });
+      } else if (obj.sync_result && obj.previous_agent) {
+        /* Must run before re-using previous_agent.operator_brief (stale mismatch copy). */
+        renderBrief({
+          headline: obj.sync_result.ok ? "Inventory update completed" : "Inventory update failed",
+          subtext: obj.sync_result.ok
+            ? "Your confirmation was applied. Details are in the technical JSON below."
+            : "The gated sync did not succeed. Check the JSON for the downstream response.",
+          next_action: "Upload a new dock photo to run another delivery.",
+          steps: [
+            { id: "u", label: "Photo received", state: "done" },
+            { id: "v", label: "Gemini read", state: "done" },
+            { id: "c", label: "Variance / approval", state: "done" },
+            { id: "s", label: "Inventory update", state: obj.sync_result.ok ? "done" : "error" },
+          ],
+        });
+      } else {
+        const brief = obj.operator_brief || obj.previous_agent?.operator_brief;
+        if (brief) renderBrief(brief);
       }
 
       const tid =
+        (obj.sync_result && obj.sync_result.trace_id) ||
         obj.trace_id ||
         (obj.sync && obj.sync.trace_id) ||
         (obj.previous_agent && obj.previous_agent.trace_id);
