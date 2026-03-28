@@ -15,3 +15,7 @@ dist/
 backend/.railtracks/
 backend/output.txt
 backend/models.json
+
+# Local-only demo / submission notes (not on GitHub)
+DEMO_SCRIPT.md
+SUBMISSION_CHECKLIST.md

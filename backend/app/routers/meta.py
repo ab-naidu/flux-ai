@@ -33,7 +33,7 @@ async def about() -> dict:
             ),
             "presentation": (
                 "GET / or /ui/ — guided operator UI with loading narrative, outcome copy (operator_brief), "
-                "and collapsible JSON; DEMO_SCRIPT.md for video"
+                "and collapsible JSON; optional local demo script for recordings"
             ),
         },
         "sponsor_integration": [

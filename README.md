@@ -58,4 +58,4 @@ Serve with the same environment variables as local `.env` (never commit `.env`).
 
 Commit **source and config templates**: `backend/` application code, `requirements.txt`, `Dockerfile`, `docker-compose.yml`, `.env.example`, `.gitignore`, and this `README.md`.
 
-Do **not** commit: `.env` (secrets), `.venv/` or other virtualenvs, `__pycache__/`, IDE junk, or API keys. Optional local notes (`DEMO_SCRIPT.md`, `SUBMISSION_CHECKLIST.md`, etc.) can stay untracked with `.gitignore` if you prefer, or remain in the repo as non-runtime documentation.
+Do **not** commit: `.env` (secrets), `.venv/` or other virtualenvs, `__pycache__/`, IDE junk, or API keys. `DEMO_SCRIPT.md` and `SUBMISSION_CHECKLIST.md` are **gitignored** so you can keep them locally without publishing them.
