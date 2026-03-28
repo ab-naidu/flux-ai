@@ -1,15 +1,11 @@
 ---
-name: flux-ai-receiving-auditor
-description: >
-  Build and operate Flux AI — aligned with Multimodal Frontier: agents that see real-world inputs
-  (dock photos: invoice + pallet), not text-only prompts. Uses Google Gemini vision for extraction,
-  Unkey-gated sync, Railtracks-style traces, bundled /ui demo. Use for warehouse
-  receiving, variance detection, HITL approval, or Multimodal Frontier hackathon submissions.
-license: MIT
-compatibility: Requires network access for Gemini, Unkey verify, and optional webhooks.
+name: "flux-ai-receiving-auditor"
+description: "Build and operate Flux AI aligned with Multimodal Frontier: agents that see real-world inputs (dock photos: invoice + pallet), not text-only prompts. Uses Google Gemini vision for extraction, Unkey-gated sync, Railtracks-style traces, bundled /ui demo. Use for warehouse receiving, variance detection, HITL approval, or Multimodal Frontier hackathon submissions."
+license: "MIT"
+compatibility: "Requires network access for Gemini, Unkey verify, and optional webhooks."
 metadata:
-  author: ab-naidu
-  version: "1.0.3"
+  author: "ab-naidu"
+  version: "1.0.4"
 ---
 
 # Flux AI — Multimodal receiving auditor
