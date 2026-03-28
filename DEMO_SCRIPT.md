@@ -21,7 +21,7 @@ This script is strictly timed to 3 minutes and physically maps to the **5 Judgin
 ---
 
 ### Phase 2: Autonomy — The Happy Path (0:30 – 1:30)
-*(Screen: Click to upload the **"Clean Image"**. Paste your Unkey client key into the UI. Click "Run agent".)*
+*(Screen: Click to upload the **"Clean Image"**. (The API Key is already pre-filled). Click "Run agent".)*
 
 **Spoken:**  
 > "Let’s look at a live receive. I’m uploading a single, messy photo showing both the paper invoice and the physical goods on the pallet.  

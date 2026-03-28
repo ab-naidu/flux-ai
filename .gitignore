@@ -10,3 +10,8 @@ __pycache__/
 node_modules/
 .next/
 dist/
+
+# Local / experimental (do not commit)
+backend/.railtracks/
+backend/output.txt
+backend/models.json

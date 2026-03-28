@@ -5,7 +5,7 @@ license: "MIT"
 compatibility: "Requires network access for Gemini, Unkey verify, and optional webhooks."
 metadata:
   author: "ab-naidu"
-  version: "1.0.4"
+  version: "1.0.5"
 ---
 
 # Flux AI — Multimodal receiving auditor
