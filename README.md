@@ -2,8 +2,6 @@
 
 **Tagline:** Zero-shot autonomous auditor for physical-to-digital receiving workflows.
 
-> **Note:** On github.com, everything above the README (nav, Copilot banners, file browser) is **GitHub’s UI**, not this file. To copy docs, use **Raw** or clone the repo.
-
 ## What it is
 
 **Multimodal Frontier fit:** the agent’s main input is **real dock photos** (invoice + pallet)—not a text-only prompt. It reads layout and pixels, extracts structured quantities, compares paperwork to what’s visible, computes **line-level variance**, then either **auto-syncs** (when clean) or **stops for HITL** and gated **`/api/inventory/sync`**.
