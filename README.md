@@ -6,6 +6,21 @@
 
 **Flux AI** shortens that path: you take **one photo** with **both the paperwork and the freight in frame**. A vision model extracts structured quantities and line items, compares **what the paper says** to **what the image suggests is on the load**, and then either **posts a clean receipt automatically** or **stops for human approval** before calling a **key-protected** inventory API.
 
+### Why the market hasn’t made this boring yet
+
+Incumbent **WMS / TMS portals**, **template OCR**, and **mobile receiving apps** absolutely exist. They usually optimize for **clean scans**, **fixed forms**, or **SKU barcodes**—not **one messy dock photo** where the **invoice, folds, glare, and partial pallet** share the frame. Classic pipelines also tend to **stop at extraction**; they rarely **reason across “paper claims vs. what’s visible”** and **branch policy** (auto-post vs. forced approval) before a **verifiable API write**.
+
+**What’s different here is the stack and the pattern:**
+
+| Layer | Why it matters |
+|--------|----------------|
+| **Google Gemini (multimodal)** | One **vision-language** pass over **document + scene**—strong fit for **clutter, skew, and layout variation** without retuning a parser per customer. Code: `backend/app/services/gemini_service.py`; try **`POST /api/analyze`**. |
+| **Agent orchestration (Railtracks)** | **Flow** + **`function_node`** make the receiving path **explicit, inspectable, and extensible**—not a single opaque script. |
+| **Gated execution (Unkey)** | **Production-shaped safety**: only **verified `X-API-Key`** clients can drive agent run and inventory sync—judges can see **reject vs. accept** in seconds. |
+| **End-to-end reference** | OpenAPI at **`/docs`**, **`/health/ready`** for config truth, **`GET /api/about`** + **`X-Flux-Sponsor-Tools`** so **tool use is demonstrable**, not claimed. |
+
+This repo is intentionally a **composable, sponsor-aligned reference**: newest-generation **multimodal AI** + **agent structure** + **keyed APIs** + **ship-ready UI**—so reviewers can **run it**, **read the contracts**, and **verify integrations** without a sales deck.
+
 ---
 
 ### What you get
