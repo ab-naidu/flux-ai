@@ -2,8 +2,6 @@
 
 **Tagline:** Zero-shot autonomous auditor for physical-to-digital receiving workflows.
 
-**Repository:** [github.com/ab-naidu/flux-ai](https://github.com/ab-naidu/flux-ai)
-
 ---
 
 ## The problem
