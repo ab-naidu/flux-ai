@@ -2,7 +2,7 @@
 
 **Zero-shot autonomous auditor** for physical-to-digital receiving.
 
-**If you are new here:** this repo is about **warehouse receiving**—when a delivery arrives, staff stand in front of **real pallets, cases, and printed paperwork** (invoice or packing list). That physical scene is the source of truth. The corporate **ERP / inventory system** usually does not “see” the truck; it only gets **whatever someone types in** afterward—often rushed, sometimes wrong, and painful to reconstruct for audits.
+**Warehouse receiving** is the instant global inventory becomes data: staff face **real pallets, cases, and paperwork** (invoice or packing list), but the **ERP / WMS** usually only sees **what someone types later**—rushed, error-prone, and a weak basis for audits or disputes across partners.
 
 **Flux AI** shortens that path: you take **one photo** with **both the paperwork and the freight in frame**. A vision model extracts structured quantities and line items, compares **what the paper says** to **what the image suggests is on the load**, and then either **posts a clean receipt automatically** or **stops for human approval** before calling a **key-protected** inventory API.
 
@@ -15,11 +15,13 @@
 - **Policy-aware execution** — **Auto-post** when numbers reconcile; **stop and require approval** when they don’t—then a **key-gated** sync so automation cannot silently corrupt the ledger.
 - **Operator-readable output** — `operator_brief` and the bundled **`/ui/`** turn JSON into language a receiving lead can act on, with full technical detail available when needed.
 
-### The problem
+### The problem (why this matters at global scale)
 
-Picture a Tuesday morning trailer: pallets on the floor, paperwork clipped to a case, a line forming behind the clerk. **Receiving staff**—dock check-in, receiving clerks, inventory associates—**already know** what they are looking at. The system of record does not. Bridging that gap today means **rekeying** quantities and SKUs into the ERP: it burns time, invites transposition errors, and leaves a thin trail when finance or compliance asks *“what did we actually sign for?”*
+Global supply chains move **billions of tons** of goods through **millions** of dock doors every year. Planning systems, carriers, and finance all assume the **digital record** matches **what physically crossed the threshold**. Often it does not. The gap shows up as **inventory distortion** (phantom stock, overstated availability), **disputes with suppliers and 3PLs**, **slower fulfillment**, **recall and compliance risk** when lineage is fuzzy, and **labor** stuck on low-value data entry instead of exception handling. Fixing “the spreadsheet” upstream never helps if **the moment of truth—the receiving line—still depends on brittle manual transcription**.
 
-Flux AI targets that **reality–data gap** directly. The model consumes **pixels and layout**—the same visual channel humans use—not a chat paraphrase of the dock. One capture can drive extraction, variance, and either an automated receipt path or a controlled human step before inventory moves.
+**Receiving is where the physical world enters the ledger.** Yet most organizations still bridge that boundary with **human rekeying** from paper or PDFs into ERP/WMS rows: high latency, error-prone, and a weak audit trail when operations, finance, or regulators ask what was actually accepted.
+
+Flux AI attacks that **systemic reality–data gap** with **multimodal perception**: a single photo with **document + freight in frame** feeds structured extraction and **line-level variance** (paper vs. scene). Automation can **post clean receipts**; discrepancies **surface to humans** before **key-gated** APIs change inventory—so scale does not have to mean silent, un-auditable writes.
 
 ### How it works (end-to-end)
 
@@ -48,7 +50,7 @@ The same contract is available from **`/ui/`** or any HTTP client—no lock-in t
 
 | Theme | Evidence in this repo |
 |--------|------------------------|
-| **Idea** | Receiving **reality–data gap**; vision on physical ops, not text-only agents. |
+| **Idea** | Systemic **reality–data gap** (inventory, disputes, compliance); vision on physical receiving, not text-only agents. |
 | **Autonomy** | `POST /api/agent/run` — auto sync when variance is zero; else HITL + `/api/inventory/sync`. Status on **`/ui/`**. |
 | **Technical** | **`/docs`**, **`/health/ready`** (flags only, no secrets), end-to-end POST to mock ERP. |
 | **Tool use** | **`GET /api/about`**; response header **`X-Flux-Sponsor-Tools`**. |
