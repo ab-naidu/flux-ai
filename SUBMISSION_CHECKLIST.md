@@ -49,9 +49,13 @@ Optional extra tracks: **Senso.ai** (install official Senso skills / API if you 
 
 ## 3-minute script (template)
 
+Full narrated script with second-level timings: **[`DEMO_SCRIPT.md`](DEMO_SCRIPT.md)**.
+
+**Short outline:**
+
 1. **0:00–0:25** — Problem + who hurts (receiver / inventory clerk).
-2. **0:25–1:45** — **Live demo**: upload pallet+invoice → variances appear → Assistant UI: “Approve and sync” → 200 OK / success state. Mention **agent run** path for zero-variance autonomy.
-3. **1:45–2:40** — **Tools**: Gemini vision, Unkey on mutate, Railtracks traces, DO hosting, Lovable UI.
+2. **0:25–1:45** — **Live demo**: upload pallet+invoice → variances appear → **Approve & sync** on `/ui/` (or Lovable + Assistant UI) → success. Mention **agent run** path for zero-variance autonomy.
+3. **1:45–2:40** — **Tools**: Gemini vision, Unkey on mutate, Railtracks traces, DO hosting, optional Lovable UI.
 4. **2:40–3:00** — Repo + Shipables skill name; what you’d pilot next.
 
 ## Pre-flight commands

@@ -79,11 +79,34 @@
       border: 1px solid #854d0e;
     }
     .trace { font-family: ui-monospace, monospace; font-size: 0.75rem; color: var(--muted); }
+    #autonomyBanner {
+      display: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border: 1px solid #2d3a4d;
+    }
+    #autonomyBanner.pill-auto { display: block; background: #052e16; color: #86efac; border-color: #166534; }
+    #autonomyBanner.pill-hitl { display: block; background: #2a2010; color: #fcd34d; border-color: #854d0e; }
+    #autonomyBanner.pill-err { display: block; background: #450a0a; color: #fca5a5; border-color: #991b1b; }
+    #autonomyBanner.pill-neutral { display: block; background: #1e293b; color: #94a3b8; border-color: #334155; }
+    .sponsors {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid #2d3a4d;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .sponsors strong { color: #cbd5e1; }
   </style>
 </head>
 <body>
   <h1>Flux AI — receiving demo</h1>
-  <p class="sub">Hackathon demo UI (same origin as API — no CORS setup). For local or deployed API.</p>
+  <p class="sub">Hackathon demo UI (same origin as API — no CORS). Judges: see also <code>/api/about</code> and <code>/docs</code>.</p>
+  <div id="autonomyBanner" role="status"></div>
   <div class="banner">Demo only: Unkey key is stored in your browser (localStorage). Do not use production secrets here.</div>
 
   <div class="panel">
@@ -113,6 +136,13 @@
     </div>
   </div>
 
+  <footer class="sponsors">
+    <strong>Sponsor tools visible in this demo:</strong>
+    Google Gemini (vision JSON) · Unkey (<code>X-API-Key</code>) · trace_id (Railtracks-style audit) ·
+    DigitalOcean-ready API · Optional Lovable + Assistant UI for production UI.
+    Response header <code>X-Flux-Sponsor-Tools</code> on API calls.
+  </footer>
+
   <script>
     const KEY = "flux_demo_unkey_key";
     const apiKeyEl = document.getElementById("apiKey");
@@ -129,23 +159,61 @@
 
     let lastPayload = null;
 
+    function updateAutonomyBanner(data) {
+      const el = document.getElementById("autonomyBanner");
+      el.className = "";
+      if (data.error) {
+        el.textContent = "Blocked — HTTP " + (data.status || "?") + " (fix keys / server; autonomy cannot proceed).";
+        el.classList.add("pill-err");
+        return;
+      }
+      if (data.sync_result) {
+        el.textContent = "HITL path: operator approved → Unkey-gated POST /api/inventory/sync completed.";
+        el.classList.add("pill-hitl");
+        return;
+      }
+      const a = data.autonomy;
+      if (a === "auto_executed_inventory_sync") {
+        el.textContent = "Autonomy (rubric): FULL — zero variance → inventory sync ran with no extra UI steps.";
+        el.classList.add("pill-auto");
+        return;
+      }
+      if (a === "paused_for_hitl") {
+        el.textContent = "Autonomy (rubric): PAUSED — variance detected → human must Approve & sync.";
+        el.classList.add("pill-hitl");
+        return;
+      }
+      if (a === "completed_without_manual_steps") {
+        el.textContent = "Agent returned clean analysis (edge case).";
+        el.classList.add("pill-neutral");
+        return;
+      }
+      if (data.line_items && !data.autonomy) {
+        el.textContent = "Analyze-only: multimodal extraction (Gemini). Use Run agent for full autonomy path.";
+        el.classList.add("pill-neutral");
+        return;
+      }
+      el.style.display = "none";
+    }
+
     function show(obj) {
       document.getElementById("out").textContent = JSON.stringify(obj, null, 2);
-      const tid = obj.trace_id || (obj.sync && obj.sync.trace_id);
+      const tid = obj.trace_id || (obj.sync && obj.sync.trace_id) || (obj.previous_agent && obj.previous_agent.trace_id);
       document.getElementById("traceLine").textContent = tid ? "trace_id: " + tid : "";
 
-      const items = obj.line_items;
+      const items = obj.line_items || (obj.previous_agent && obj.previous_agent.line_items);
       const wrap = document.getElementById("tableWrap");
       if (!items || !items.length) {
         wrap.innerHTML = "";
-        return;
+      } else {
+        let html = "<table><thead><tr><th>#</th><th>Description</th><th>Expected</th><th>Actual</th><th>Variance</th></tr></thead><tbody>";
+        for (const row of items) {
+          html += "<tr><td>" + (row.line_id ?? "") + "</td><td>" + escapeHtml(String(row.description ?? "")) + "</td><td>" + (row.expected_qty ?? "—") + "</td><td>" + (row.actual_qty ?? "—") + "</td><td>" + (row.variance ?? "—") + "</td></tr>";
+        }
+        html += "</tbody></table>";
+        wrap.innerHTML = html;
       }
-      let html = "<table><thead><tr><th>#</th><th>Description</th><th>Expected</th><th>Actual</th><th>Variance</th></tr></thead><tbody>";
-      for (const row of items) {
-        html += "<tr><td>" + (row.line_id ?? "") + "</td><td>" + escapeHtml(String(row.description ?? "")) + "</td><td>" + (row.expected_qty ?? "—") + "</td><td>" + (row.actual_qty ?? "—") + "</td><td>" + (row.variance ?? "—") + "</td></tr>";
-      }
-      html += "</tbody></table>";
-      wrap.innerHTML = html;
+      updateAutonomyBanner(obj);
     }
 
     function escapeHtml(s) {
@@ -182,7 +250,7 @@
         data = { raw };
       }
       if (!res.ok) {
-        show({ error: true, status: res.status, body: data });
+        show({ error: true, status: res.status, body: data, line_items: data.line_items });
         return;
       }
       show(data);

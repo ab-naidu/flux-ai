@@ -9,10 +9,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import RedirectResponse, Response
 
 from app.config import settings
-from app.routers import agent, analyze, inventory, mock_target
+from app.routers import agent, analyze, inventory, meta, mock_target
 
 logging.basicConfig(level=logging.INFO)
 
@@ -47,14 +47,29 @@ def create_app() -> FastAPI:
         expose_headers=["X-Flux-Sponsor-Tools"],
     )
     app.add_middleware(FluxSponsorMiddleware)
+    app.include_router(meta.router)
     app.include_router(agent.router)
     app.include_router(analyze.router)
     app.include_router(inventory.router)
     app.include_router(mock_target.router)
 
+    @app.get("/")
+    async def root() -> RedirectResponse:
+        return RedirectResponse(url="/ui/", status_code=302)
+
     @app.get("/health")
     async def health() -> dict:
         return {"status": "ok"}
+
+    @app.get("/health/ready")
+    async def health_ready() -> dict:
+        gk = (settings.gemini_api_key or "").strip()
+        rk = (settings.unkey_root_key or "").strip()
+        return {
+            "gemini_configured": bool(gk),
+            "unkey_server_ready": bool(not settings.unkey_enabled or rk),
+            "unkey_enabled": settings.unkey_enabled,
+        }
 
     static_dir = Path(__file__).resolve().parent / "static"
     if static_dir.is_dir():

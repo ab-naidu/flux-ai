@@ -2,6 +2,18 @@
 
 **Tagline:** Zero-shot autonomous auditor for physical-to-digital receiving workflows.
 
+### For judges (20% × 5 at a glance)
+
+| Bucket | Where to look |
+|--------|----------------|
+| **Idea** | Section *The problem* + *What Flux AI does* below |
+| **Autonomy** | `POST /api/agent/run` — auto sync when variance is zero; else HITL + `/api/inventory/sync`. **UI:** colored banner on **`/ui/`** states the mode. |
+| **Technical** | **`/docs`** OpenAPI; **`/health/ready`** shows config flags (no secrets); end-to-end POST to mock ERP |
+| **Tool use** | **`GET /api/about`** lists sponsors + evidence; response header **`X-Flux-Sponsor-Tools`** |
+| **Presentation** | Record **`/ui/`** walkthrough — script: **[`DEMO_SCRIPT.md`](DEMO_SCRIPT.md)** |
+
+Quick links (when API is running): **`/`** → demo UI · **`/api/about`** · **`/docs`**
+
 ---
 
 ## The problem
@@ -62,6 +74,8 @@ Fill in when ready (for your own notes — do not commit secrets):
 | **Assistant UI** | Chat UX for natural-language approve / sync intents. |
 
 Response header **`X-Flux-Sponsor-Tools`** summarizes integrations for demos.
+
+**Extra prize track (optional):** [Senso.ai](https://docs.senso.ai) — only if you have time to ground copy or policies in a Senso KB; not required for the core demo.
 
 **Submission:** see [`SUBMISSION_CHECKLIST.md`](SUBMISSION_CHECKLIST.md) (Devpost + Shipables + 3-minute video).
 
@@ -124,7 +138,10 @@ Open **http://localhost:8000/docs** for interactive API docs.
 
 | Endpoint | Purpose |
 |----------|---------|
+| `GET /` | Redirects to **`/ui/`** (demo first) |
 | `GET /health` | Liveness |
+| `GET /health/ready` | `gemini_configured` / `unkey_server_ready` flags (no secret values) |
+| `GET /api/about` | Judge-facing sponsor + rubric hooks (JSON) |
 | `POST /api/agent/run` | **Full agent path** — multipart `file`, form `auto_sync_when_clean`, header `X-API-Key` when Unkey enabled |
 | `POST /api/analyze` | Multimodal analysis only (no auto sync) |
 | `POST /api/inventory/sync` | HITL-approved sync — JSON body + `X-API-Key` |
