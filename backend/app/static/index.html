@@ -215,6 +215,19 @@
       outline: 2px solid rgba(74, 222, 128, 0.5);
       outline-offset: 3px;
     }
+
+    .sync-ledger-done {
+      display: none;
+      margin: 0.75rem 0 0;
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      color: #bbf7d0;
+      background: var(--ok-bg);
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      border-radius: 10px;
+      border-left: 4px solid var(--ok);
+    }
+    .sync-ledger-done.show { display: block; }
     @keyframes sync-pulse {
       0%, 100% { box-shadow: 0 4px 14px rgba(34, 197, 94, 0.45); }
       50% { box-shadow: 0 6px 28px rgba(34, 197, 94, 0.85); }
@@ -830,6 +843,7 @@
                 <div id="tableWrap"></div>
                 <p class="trace" id="traceLine"></p>
                 <button type="button" class="btn-success" id="syncBtn" disabled>Confirm inventory update</button>
+                <p class="sync-ledger-done" id="syncLedgerDone" role="status" aria-live="polite"></p>
                 <details class="tech">
                   <summary>Technical JSON</summary>
                   <pre id="out">{}</pre>
@@ -1043,8 +1057,12 @@
       document.getElementById("traceLine").textContent = "";
       document.getElementById("out").textContent = "{}";
       const sb = document.getElementById("syncBtn");
+      sb.hidden = false;
       sb.disabled = true;
       sb.classList.remove("sync-attn");
+      const sld = document.getElementById("syncLedgerDone");
+      sld.classList.remove("show");
+      sld.textContent = "";
       lastPayload = null;
     }
 
@@ -1068,6 +1086,38 @@
     }
 
     let lastPayload = null;
+
+    function updateInventoryCtaAfterShow(obj) {
+      const btn = document.getElementById("syncBtn");
+      const done = document.getElementById("syncLedgerDone");
+      if (obj.error) {
+        done.classList.remove("show");
+        done.textContent = "";
+        btn.hidden = false;
+        btn.disabled = true;
+        btn.classList.remove("sync-attn");
+        return;
+      }
+      if (obj.sync_result && obj.previous_agent) {
+        if (obj.sync_result.ok) {
+          btn.hidden = true;
+          btn.disabled = true;
+          btn.classList.remove("sync-attn");
+          done.textContent =
+            "Ledger complete — confirmation was applied. No further action for this delivery; add a new photo to continue.";
+          done.classList.add("show");
+        } else {
+          done.classList.remove("show");
+          done.textContent = "";
+          btn.hidden = false;
+          btn.disabled = false;
+          btn.classList.add("sync-attn");
+        }
+        return;
+      }
+      done.classList.remove("show");
+      done.textContent = "";
+    }
 
     function renderBrief(brief) {
       document.getElementById("obHeadline").textContent = brief.headline || "Result";
@@ -1164,19 +1214,24 @@
       document.getElementById("reportEmpty").hidden = true;
       document.getElementById("reportBody").hidden = false;
       revealReportResults();
+      updateInventoryCtaAfterShow(obj);
       setStep(3);
     }
 
     function applyLedgerState(data, analyzeOnly) {
       const sb = document.getElementById("syncBtn");
+      const done = document.getElementById("syncLedgerDone");
       sb.classList.remove("sync-attn");
       const canSync =
         !analyzeOnly &&
         Array.isArray(data.line_items) &&
         data.line_items.length > 0 &&
         data.autonomy !== "auto_executed_inventory_sync";
-      sb.disabled = !canSync;
+      done.classList.remove("show");
+      done.textContent = "";
       if (canSync) {
+        sb.hidden = false;
+        sb.disabled = !canSync;
         sb.classList.add("sync-attn");
         setStep(3);
         document.getElementById("workflowCurrentLabel").textContent =
@@ -1185,18 +1240,27 @@
           "<strong>Step 4 — Ledger (HITL):</strong> the model paused for approval. Confirm the write to finish end-to-end.";
         setTimeout(() => sb.focus({ preventScroll: true }), 450);
       } else if (analyzeOnly) {
+        sb.hidden = true;
+        sb.disabled = true;
         setStep(4);
         document.getElementById("workflowCurrentLabel").textContent =
           "Ledger skipped — quick analyze does not call the agent or inventory APIs.";
         captureStatus.innerHTML =
           "<strong>Done — analyze path.</strong> Run <strong>end-to-end audit</strong> for Unkey + agent + optional ERP write.";
       } else if (data.autonomy === "auto_executed_inventory_sync") {
+        sb.hidden = true;
+        sb.disabled = true;
+        done.textContent =
+          "Ledger complete — inventory was updated automatically (zero variance + policy). Upload a new photo for the next delivery.";
+        done.classList.add("show");
         setStep(4);
         document.getElementById("workflowCurrentLabel").textContent =
           "Ledger complete — inventory write ran automatically (clean variance + policy).";
         captureStatus.innerHTML =
           "<strong>End-to-end complete.</strong> Auto-sync succeeded. Upload another photo for the next delivery.";
       } else {
+        sb.hidden = true;
+        sb.disabled = true;
         setStep(4);
         document.getElementById("workflowCurrentLabel").textContent =
           "Ledger — no write this run (see report for detail).";
@@ -1221,8 +1285,12 @@
       const headers = {};
       if (key) headers["X-API-Key"] = key;
 
-      document.getElementById("syncBtn").disabled = true;
-      document.getElementById("syncBtn").classList.remove("sync-attn");
+      const sb0 = document.getElementById("syncBtn");
+      sb0.hidden = false;
+      sb0.disabled = true;
+      sb0.classList.remove("sync-attn");
+      document.getElementById("syncLedgerDone").classList.remove("show");
+      document.getElementById("syncLedgerDone").textContent = "";
       lastPayload = null;
       setStep(2);
       captureStatus.innerHTML = "<strong>Running…</strong> watch the pipeline on the right.";
@@ -1314,8 +1382,6 @@
       await new Promise((r) => setTimeout(r, 320));
       revealReportResults();
       show({ sync_result: data, previous_agent: lastPayload, operator_brief: undefined });
-      document.getElementById("syncBtn").disabled = true;
-      document.getElementById("syncBtn").classList.remove("sync-attn");
       setStep(4);
       document.getElementById("workflowCurrentLabel").textContent =
         "Ledger complete — HITL inventory sync finished. Full path demonstrated.";
