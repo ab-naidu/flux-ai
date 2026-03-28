@@ -115,6 +115,31 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 Open **http://localhost:8000/docs** for interactive API docs.
 
+After editing `.env`, call **`GET /health/ready`** — it reports `gemini_configured` and `unkey_server_ready` (boolean flags only, no secret values).
+
+### Environment variables (`backend/.env`)
+
+Copy **`backend/.env.example`** → **`backend/.env`** and fill values. **Never commit `.env`** (it is listed in `.gitignore`).
+
+| Variable | Purpose |
+|----------|---------|
+| `GEMINI_API_KEY` | Required for `/api/analyze` and `/api/agent/run` (Google AI Studio). |
+| `GEMINI_MODEL` | Optional; defaults to `gemini-1.5-pro`. |
+| `CORS_ORIGINS` | Comma-separated browser origins if the UI or another front end is not same-origin. |
+| `UNKEY_ENABLED` | Set `false` to skip key verification locally; `true` for production-style gating. |
+| `UNKEY_VERIFY_URL` | Default `https://api.unkey.com/v2/keys.verifyKey` (prefer over `api.unkey.dev` if DNS fails). |
+| `UNKEY_ROOT_KEY` | Unkey **root** key (server only). Required when `UNKEY_ENABLED=true`. Clients still send **`X-API-Key`** (an API key you create in Unkey). |
+| `RAILTRACKS_ENABLED` | Feature flag for Railtracks integration paths in config. |
+| `RAILTRACKS_WEBHOOK_URL` | Optional JSON trace webhook. |
+| `MOCK_INVENTORY_URL` | Empty = in-process mock ERP; or set to your deployed `/mock/vori/receiving` URL. |
+
+### Python dependencies (important after `git pull`)
+
+- **`starlette`** is pinned to the **0.41.x** line (below 0.42) so FastAPI **0.115.x** is not broken by transitive **mcp** pulling Starlette **1.x**.
+- **`pydantic`** is **2.12.x** (not 2.10.x) so **`railtracks`** imports cleanly.
+
+Always reinstall after pulling: `pip install -r backend/requirements.txt`.
+
 ### Bundled demo UI
 
 1. Start the API (see above).  
@@ -140,6 +165,13 @@ Open **http://localhost:8000/docs** for interactive API docs.
 1. Add your site’s origin(s) to **`CORS_ORIGINS`** in server `.env`.  
 2. **Upload** → `POST /api/agent/run` or `/api/analyze`.  
 3. **Approve / sync** → `POST /api/inventory/sync` with the same `X-API-Key` and `line_items` from the last analysis response.
+
+---
+
+## Secrets and Git
+
+- **Never commit** `backend/.env`. It is gitignored; use **`.env.example`** as the template only.
+- If keys are exposed (e.g. pasted in a ticket, screenshot, or accidental commit), **rotate** them in [Google AI Studio](https://aistudio.google.com/) and the [Unkey dashboard](https://unkey.dev/) immediately.
 
 ---
 
