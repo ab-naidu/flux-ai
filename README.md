@@ -1,20 +1,44 @@
 # Flux AI
 
-**Zero-shot autonomous auditor** for physical-to-digital receiving—the kind of workflow where a wrong number in the system is a wrong number on the shelf.
+**Zero-shot autonomous auditor** for physical-to-digital receiving.
+
+The loading dock already has the evidence. The ERP usually gets a **second-hand story**—typed late, under pressure, sometimes wrong. **Flux AI lets the shipment speak for itself:** camera in, structured facts out, with guardrails before anything hits inventory.
 
 ---
 
+### What you get
+
+- **Vision-first intake** — One image with **invoice + freight in frame**; no dependency on someone summarizing the scene in text.
+- **Line-level variance** — Expected quantities from the paperwork vs. what the model infers from the **physical load**, surfaced clearly for operators.
+- **Policy-aware execution** — **Auto-post** when numbers reconcile; **stop and require approval** when they don’t—then a **key-gated** sync so automation cannot silently corrupt the ledger.
+- **Operator-readable output** — `operator_brief` and the bundled **`/ui/`** turn JSON into language a receiving lead can act on, with full technical detail available when needed.
+
 ### The problem
 
-**Receiving staff** at a warehouse or DC—dock check-in, receiving clerks, inventory associates—already **see** what arrived: the invoice or packing list, the pallet, the case count. The painful part is **retyping that into the ERP** from memory or notes: slow, error-prone, and hard to reconstruct later for an audit. Flux AI closes that loop: **one photo** (paperwork + freight in the same frame) drives structured extraction, **line-level variance** against what’s visible, and a clear fork—**auto-sync when the math is clean**, **human-in-the-loop + gated API** when it isn’t. The model works from **pixels and layout**, not a chat summary of the dock.
+Picture a Tuesday morning trailer: pallets on the floor, paperwork clipped to a case, a line forming behind the clerk. **Receiving staff**—dock check-in, receiving clerks, inventory associates—**already know** what they are looking at. The system of record does not. Bridging that gap today means **rekeying** quantities and SKUs into the ERP: it burns time, invites transposition errors, and leaves a thin trail when finance or compliance asks *“what did we actually sign for?”*
 
-### How it works
+Flux AI targets that **reality–data gap** directly. The model consumes **pixels and layout**—the same visual channel humans use—not a chat paraphrase of the dock. One capture can drive extraction, variance, and either an automated receipt path or a controlled human step before inventory moves.
 
-Upload → Gemini reads document + scene → variances surface in plain language (`operator_brief`) → either the run **finishes with sync** or the UI requires **explicit approval** before **`/api/inventory/sync`**. Unkey guards inventory mutations; Railtracks structures the agent pipeline. The same flow is available from **`/ui/`** or any client that calls the API.
+### How it works (end-to-end)
+
+1. **Capture** — Upload a photo (or integrate your app’s camera) showing **document + goods** together.  
+2. **Understand** — **Gemini** performs multimodal extraction: structured line items, quantities, and scene-grounded estimates.  
+3. **Decide** — The service compares **paper vs. scene**, exposes variances, and populates **`operator_brief`** for humans scanning the outcome.  
+4. **Act** — If policy allows and the run is clean, **`/api/agent/run`** can complete inventory sync automatically. If not, the **bundled UI** or your client collects **explicit approval**, then **`/api/inventory/sync`** runs behind **Unkey**-verified **`X-API-Key`**.  
+5. **Trace** — **Railtracks** Flow + `function_node` in `receiving_flow.py` structures the pipeline; optional webhook and response payloads support audit-style follow-up.
+
+The same contract is available from **`/ui/`** or any HTTP client—no lock-in to a single front end.
 
 ### Stack
 
-FastAPI in **`backend/`**, operator UI at **`/ui/`**, **Google Gemini** for multimodal JSON extraction, **Unkey** on agent run and sync routes, **Railtracks** Flow + `function_node` in `receiving_flow.py`, mock ERP at **`/mock/vori/receiving`**, **Docker** + compose for deployment (e.g. **DigitalOcean**).
+| Piece | Role |
+|-------|------|
+| **FastAPI** | `backend/` — REST API, static **`/ui/`**, health and metadata routes. |
+| **Google Gemini** | Multimodal JSON extraction from dock imagery. |
+| **Unkey** | Verifies client keys before agent run and inventory sync. |
+| **Railtracks** | Agent orchestration (`Flow`, `function_node`). |
+| **Mock ERP** | **`/mock/vori/receiving`** for end-to-end demos without a real WMS. |
+| **Docker / compose** | Ship to **DigitalOcean** or any container host with env-based secrets. |
 
 ---
 
