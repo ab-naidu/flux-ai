@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "keywords": [
+    "flux-ai",
+    "multimodal",
+    "gemini",
+    "unkey",
+    "railtracks",
+    "inventory",
+    "warehouse",
+    "hackathon"
+  ],
+  "categories": ["ai-ml"],
+  "author": {
+    "name": "ab-naidu",
+    "github": "ab-naidu"
+  }
+}
