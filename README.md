@@ -14,6 +14,10 @@ Backend: **FastAPI** + **Google Gemini** (vision JSON) + **Unkey**-gated mutatio
 | **Tool use** | Response header `X-Flux-Sponsor-Tools` lists integrations; Unkey on agent + sync; Gemini in `gemini_service.py`; Railtracks hooks in `railtracks.py`. |
 | **Shipables** | Publish [`shipables/flux-ai-receiving/`](shipables/flux-ai-receiving/) (`author: ab-naidu` in `SKILL.md` / `shipables.json`). |
 
+## Unkey (important)
+
+Client requests send **`X-API-Key`** (the key you create for users). Your server must also set **`UNKEY_ROOT_KEY`** in `backend/.env` (Unkey dashboard **root key**) so the backend can call Unkey’s verify API. Use **`UNKEY_VERIFY_URL=https://api.unkey.com/v2/keys.verifyKey`** — `api.unkey.dev` often fails DNS (`getaddrinfo`).
+
 ## Quick start (local)
 
 ```powershell
