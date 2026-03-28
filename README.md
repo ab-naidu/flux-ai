@@ -28,9 +28,17 @@ Flux AI was built specifically to max out the Multimodal Frontier rubric (20% ea
 | **Unkey** | Enforces zero-trust mutations. The agent and human approvals must pass an `X-API-Key` check to sync to inventory. (`app/services/inventory_service.py`) |
 | **Railtracks** | Agentic workflows. We use `Flow` and `function_node` to break the agent's path into observable, traceable blocks. (`app/services/receiving_flow.py`) |
 | **DigitalOcean** | Production inference. The entire backend is containerized (`backend/Dockerfile`) and ready for App Platform or a Droplet. |
-| **Shipables** | Packaged and published as the `flux-ai-receiving-auditor` skill on `shipables.dev` for 1-click installation. (`shipables/flux-ai-receiving/`) |
+| **Senso.ai (Shipables)** | Packaged and published as the `flux-ai-receiving-auditor` skill on `shipables.dev` for 1-click installation. (`shipables/flux-ai-receiving/`) |
 
 *Note: The API returns an `X-Flux-Sponsor-Tools` header on all requests as proof of integration.*
+
+---
+
+## 📄 Hackathon Resources
+
+- 🎙️ **[DEMO_SCRIPT.md](DEMO_SCRIPT.md)**: Our strictly timed 3-minute pitch script for the judges.
+- ✅ **[SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md)**: Proof of completion for all Devpost requirements.
+- 🚀 **[winning_guidance.md](winning_guidance.md)**: Strategy mapping for the 5 judging criteria.
 
 ---
 
