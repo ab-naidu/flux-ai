@@ -2,11 +2,15 @@
 
 **Tagline:** Zero-shot autonomous auditor for physical-to-digital receiving workflows.
 
+### Multimodal Frontier — theme alignment
+
+The hackathon centers on agents that **see, hear, and understand the real world**—not agents that only consume text prompts. **Flux AI** fits that brief directly: the agent’s primary input is **real camera / photo evidence** from the loading dock (invoice + pallet in frame). It **reasons over pixels and document layout**, extracts structured facts, compares “what the paperwork claims” to “what’s visible,” and only then acts through gated APIs. This is **visual understanding of physical operations**, not a chat wrapper around a spreadsheet.
+
 ### For judges (20% × 5 at a glance)
 
 | Bucket | Where to look |
 |--------|----------------|
-| **Idea** | Section *The problem* + *What Flux AI does* below |
+| **Idea** | *Multimodal Frontier* theme: real-world **vision** input + receiving use case — see section *Multimodal Frontier* + *The problem* below |
 | **Autonomy** | `POST /api/agent/run` — auto sync when variance is zero; else HITL + `/api/inventory/sync`. **UI:** colored banner on **`/ui/`** states the mode. |
 | **Technical** | **`/docs`** OpenAPI; **`/health/ready`** shows config flags (no secrets); end-to-end POST to mock ERP |
 | **Tool use** | **`GET /api/about`** lists sponsors + evidence; response header **`X-Flux-Sponsor-Tools`** |
@@ -18,13 +22,13 @@ Quick links (when API is running): **`/`** → demo UI · **`/api/about`** · **
 
 ## The problem
 
-Warehouse and retail receiving still depend on a slow, error-prone loop: a person reads a paper invoice or packing list, eyeballs what is on the pallet, and manually types quantities into an ERP or inventory system. That creates a **reality–data gap**—what physically arrived does not reliably match what the system believes—plus delays, silos, and weak audit trails.
+Warehouse and retail receiving still depend on a slow, error-prone loop: a person reads a paper invoice or packing list, eyeballs what is on the pallet, and manually types quantities into an ERP or inventory system. That creates a **reality–data gap**—what physically arrived does not reliably match what the system believes—plus delays, silos, and weak audit trails. Fixing that requires **understanding the scene**, not retyping a text summary of it.
 
 ## What Flux AI does
 
-Flux AI is a **multimodal cognitive bridge** between the dock and your digital inventory:
+Flux AI is a **multimodal cognitive bridge** between the dock and your digital inventory—the agent **looks** at the same visual evidence a receiver would:
 
-1. **Perception** — An operator uploads a photo (or your app sends camera capture) showing the delivery and its paperwork in frame.
+1. **Perception (real-world input)** — An operator uploads a photo (or your app sends **live or captured camera** feed) showing the delivery and its paperwork in frame—not a text description of the delivery.
 2. **Reasoning** — A vision-language model reads expected quantities from document text and estimates what is visible on the pallet, then computes **line-level variances** (e.g. invoice says 50 cases, scene suggests 48).
 3. **Human-in-the-loop when it matters** — If everything matches, the system can **finish the workflow automatically**. If there is a discrepancy, it **stops** and waits for an explicit approval path (e.g. chat: “approve and sync”).
 4. **Gated execution** — Inventory mutations go through **API key verification** (Unkey) so automated runs cannot silently write to downstream systems without authorized credentials.

@@ -1,18 +1,20 @@
 ---
 name: flux-ai-receiving-auditor
 description: >
-  Build and operate Flux AI — a multimodal receiving auditor that compares invoice/pallet
-  images (Google Gemini), gates inventory sync with Unkey, emits Railtracks-style trace spans,
-  and pairs with a Lovable + Assistant UI dashboard. Use when implementing warehouse receiving,
-  variance detection, HITL approval chat, or hackathon Multimodal Frontier submissions.
+  Build and operate Flux AI — aligned with Multimodal Frontier: agents that see real-world inputs
+  (dock photos: invoice + pallet), not text-only prompts. Uses Google Gemini vision for extraction,
+  Unkey-gated sync, Railtracks-style traces, optional Lovable + Assistant UI. Use for warehouse
+  receiving, variance detection, HITL approval, or Multimodal Frontier hackathon submissions.
 license: MIT
 compatibility: Requires network access for Gemini, Unkey verify, and optional webhooks.
 metadata:
   author: ab-naidu
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # Flux AI — Multimodal receiving auditor
+
+**Event theme:** Agents that **see / hear / understand the real world**—Flux uses **vision on physical receiving** (camera or photo of paperwork + goods) as the primary signal, then structured reasoning and gated API execution.
 
 ## Sponsor tools (minimum 3 for Multimodal Frontier)
 

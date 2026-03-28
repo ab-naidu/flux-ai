@@ -2,9 +2,11 @@
 
 Use a **clean take**; show **`/ui/`** full screen first, then optionally **Network** tab for `X-Flux-Sponsor-Tools`.
 
+**Theme hook (say this early):** The event is about agents that **see and understand the real world**, not just process text prompts. Flux’s input is **real dock imagery**—invoice plus pallet in one frame.
+
 ## 0:00–0:22 — Idea (20%)
 
-> “Receiving is still manual: people read paper invoices and type into the ERP. That creates a **reality–data gap**—what’s on the pallet doesn’t match the system. **Flux AI** is a multimodal auditor: one photo of invoice plus goods, structured variance, and **gated** writes only when policy allows.”
+> “Most warehouse agents would still be typing what someone *said* was on the truck. We’re doing the opposite: the agent **looks** at **real receiving photos**—invoice and goods together—extracts structured counts, flags variance, and only then talks to inventory APIs under policy. That’s multimodal **vision** on **real operations**, not a text-only copilot.”
 
 ## 0:22–1:45 — Live demo: Autonomy + Technical (20% + 20%)
 

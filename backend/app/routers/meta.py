@@ -12,12 +12,20 @@ async def about() -> dict:
     return {
         "project": "Flux AI",
         "tagline": "Zero-shot autonomous auditor for physical-to-digital receiving workflows",
+        "multimodal_frontier_theme": (
+            "Hackathon focus: agents that see / hear / understand the real world—not only text prompts. "
+            "Flux AI: primary signal is camera or photo of dock + paperwork; vision-language reasoning; "
+            "then gated actions. Visual ops, not chat-only."
+        ),
         "judging_hooks": {
             "autonomy": (
                 "POST /api/agent/run — one upload; if all variances are zero, inventory sync runs "
                 "automatically; otherwise autonomy pauses for HITL then POST /api/inventory/sync"
             ),
-            "idea": "Closes the receiving reality–data gap: vision compares invoice to pallet, gated ERP write",
+            "idea": (
+                "Aligns with Multimodal Frontier: real-world visual input (invoice + pallet imagery), "
+                "not text-only agents; closes receiving reality–data gap with vision + gated ERP write"
+            ),
             "technical": "FastAPI end-to-end, structured JSON from Gemini, Unkey-gated mutations, mock ERP webhook",
             "tool_use": "Gemini + Unkey + trace IDs (Railtracks-style webhook optional) + DO container; Lovable/Assistant UI optional",
             "presentation": "Open GET / or /ui/ for operator demo; GET /docs for Swagger; 3-minute video script in repo DEMO_SCRIPT.md",

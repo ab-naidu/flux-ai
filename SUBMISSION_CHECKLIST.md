@@ -21,7 +21,8 @@ This checklist maps **Devpost requirements** and **judging (20% × 5)** to what 
 
 ### 2. Idea (20%)
 
-- [ ] 20 seconds: **reality–data gap** in receiving; cost (time/errors/safety).
+- [ ] **Multimodal Frontier theme:** state clearly that the agent uses **real-world visual input** (photo/camera of dock + paperwork)—**not** a text-only / prompt-only workflow. Tie to “see, hear, understand the world” as **vision on physical receiving**.
+- [ ] **reality–data gap** in receiving; cost (time/errors/safety).
 - [ ] Tie to **one vertical** (e.g. grocery DC) if you use Vori-style mock.
 
 ### 3. Technical implementation (20%)
