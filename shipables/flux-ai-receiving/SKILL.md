@@ -3,13 +3,13 @@ name: flux-ai-receiving-auditor
 description: >
   Build and operate Flux AI — aligned with Multimodal Frontier: agents that see real-world inputs
   (dock photos: invoice + pallet), not text-only prompts. Uses Google Gemini vision for extraction,
-  Unkey-gated sync, Railtracks-style traces, optional Lovable + Assistant UI. Use for warehouse
+  Unkey-gated sync, Railtracks-style traces, bundled /ui demo. Use for warehouse
   receiving, variance detection, HITL approval, or Multimodal Frontier hackathon submissions.
 license: MIT
 compatibility: Requires network access for Gemini, Unkey verify, and optional webhooks.
 metadata:
   author: ab-naidu
-  version: "1.0.1"
+  version: "1.0.2"
 ---
 
 # Flux AI — Multimodal receiving auditor
@@ -22,13 +22,12 @@ metadata:
 2. **Unkey** — `X-API-Key` on `/api/inventory/sync` and `/api/agent/run` (verify via Unkey API when enabled).
 3. **Railtracks** — span IDs + optional `RAILTRACKS_WEBHOOK_URL` JSON events for agent auditability.
 4. **DigitalOcean** — deploy `backend/Dockerfile` (Droplet / App Platform).
-5. **Lovable** — host the React/Next dashboard; set `CORS_ORIGINS` to the preview URL.
-6. **Assistant UI** — embed chat; map “approve and sync” to `POST /api/inventory/sync`.
+5. **Custom frontend (optional)** — any SPA calling the same API; set `CORS_ORIGINS` for that origin.
 
 ## Autonomy story (judging)
 
 - **Happy path:** `POST /api/agent/run` with image + `X-API-Key` → if all variances are zero, the server **auto-executes** sync without further UI.
-- **Exception path:** non-zero variance → response `autonomy: paused_for_hitl` → operator approves in chat → `POST /api/inventory/sync`.
+- **Exception path:** non-zero variance → response `autonomy: paused_for_hitl` → operator approves (e.g. **Approve & sync** on `/ui`) → `POST /api/inventory/sync`.
 
 ## API contract
 

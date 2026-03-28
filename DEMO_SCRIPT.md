@@ -18,7 +18,7 @@ Use a **clean take**; show **`/ui/`** full screen first, then optionally **Netwo
 
 ## 1:45–2:35 — Tool use (20%)
 
-> “**Google Gemini** does vision and JSON extraction. **Unkey** validates every mutation. **trace_id** gives us Railtracks-style audit. The API runs in a **Dockerfile** ready for **DigitalOcean**. We have a bundled **UI**; you can also pair **Lovable** and **Assistant UI** for the same API.”
+> “**Google Gemini** does vision and JSON extraction. **Unkey** validates every mutation. **trace_id** gives us Railtracks-style audit. The API ships with a bundled **`/ui`** and a **Dockerfile** for **DigitalOcean**.”
 
 Optional: open **`/api/about`** in another tab — *“Everything we claim is enumerated here for judges.”*
 

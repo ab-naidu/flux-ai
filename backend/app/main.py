@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 
 SPONSOR_TOOL_HEADER = (
     "google-gemini; unkey; railtracks-traces; digitalocean-ready; "
-    "lovable-frontend; assistant-ui-chat"
+    "bundled-ui-/ui"
 )
 
 

@@ -47,24 +47,8 @@ In short: **one image in → structured variance out → safe sync when policy a
 | Layer | Role |
 |-------|------|
 | **This backend (FastAPI)** | Image ingest, Gemini multimodal JSON extraction, variance logic, Unkey-gated sync, mock ERP webhook, trace emission. |
-| **Frontend** | **Option A:** bundled **`/ui`** demo in this API. **Option B:** **Lovable** + **Assistant UI** for sponsor-visible polish and chat UX. |
+| **Frontend** | Operator UI is served at **`/ui`** from this service. A separate client (e.g. React + Assistant UI) can call the same REST API; set **`CORS_ORIGINS`** for non–same-origin hosts. |
 | **Infrastructure** | Container in `backend/Dockerfile`; intended to run on **DigitalOcean** (or any host) with secrets in env—never in git. |
-
-## Is Lovable required?
-
-**No — not as a hard rule** from the usual Multimodal Frontier wording: you must **effectively use at least three sponsor tools**, not a specific branded frontend. Your **http://localhost:8000/ui/** (and deployed **`/ui`**) already demonstrates the product for judges and video.
-
-**Yes — it’s worth doing** if you want a clear **“we used Lovable”** story, a nicer layout, and **Assistant UI** for the chat sponsor. After you publish the Lovable app, add its URL to Devpost and say in the video: *UI built in Lovable; chat via Assistant UI; API on DigitalOcean.*
-
-Fill in when ready (for your own notes — do not commit secrets):
-
-| Field | Your value |
-|-------|------------|
-| Lovable project URL | _e.g. `https://…lovable.app/…`_ |
-| Public API base | _e.g. `https://your-droplet/…`_ |
-| `CORS_ORIGINS` on server | _must include your Lovable origin_ |
-
----
 
 ## Hackathon sponsor tools (how they show up)
 
@@ -74,8 +58,8 @@ Fill in when ready (for your own notes — do not commit secrets):
 | **Unkey** | Validates `X-API-Key` before agent run and inventory sync. |
 | **Railtracks-style traces** | `trace_id` on responses; optional `RAILTRACKS_WEBHOOK_URL` for span JSON. |
 | **DigitalOcean** | Production hosting for the API container. |
-| **Lovable** | UI shell for the operator experience. |
-| **Assistant UI** | Chat UX for natural-language approve / sync intents. |
+| **Lovable** | Optional external UI scaffold (not required for the bundled demo). |
+| **Assistant UI** | Optional embedded chat UX on a separate frontend. |
 
 Response header **`X-Flux-Sponsor-Tools`** summarizes integrations for demos.
 
@@ -90,7 +74,7 @@ Response header **`X-Flux-Sponsor-Tools`** summarizes integrations for demos.
 | Google AI Studio API key | Gemini integration + `.env.example` |
 | Unkey root key + client API key | Verify v2 + gated routes |
 | Run server, open URLs | FastAPI, `/docs`, **`/ui` demo** |
-| Lovable + Assistant UI (optional for extra sponsor points) | API contract in README |
+| Optional custom frontend | Same API as `/ui`; configure `CORS_ORIGINS` |
 | DigitalOcean account, create Droplet/App, set env | `Dockerfile`, `docker-compose.yml` |
 | `shipables login` + `publish` | Skill under `shipables/flux-ai-receiving/` |
 | Record video, submit Devpost | `SUBMISSION_CHECKLIST.md` |
@@ -104,7 +88,7 @@ Response header **`X-Flux-Sponsor-Tools`** summarizes integrations for demos.
 | **Idea** | Receiving reality–data gap + multimodal audit story (above). |
 | **Autonomy** | `POST /api/agent/run` — auto sync when variances are zero; otherwise paused for HITL + `/api/inventory/sync`. |
 | **Technical** | End-to-end API, JSON contracts, gated POST to mock ERP. |
-| **Tool use** | Gemini, Unkey, traces, DO deploy path, Lovable + Assistant UI (frontend). |
+| **Tool use** | Gemini, Unkey, traces, DO deploy path; optional second frontend if you add one. |
 | **Shipables** | Skill package in [`shipables/flux-ai-receiving/`](shipables/flux-ai-receiving/). |
 
 ---
@@ -131,7 +115,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 Open **http://localhost:8000/docs** for interactive API docs.
 
-### Bundled demo UI (record a video without Lovable)
+### Bundled demo UI
 
 1. Start the API (see above).  
 2. Open **http://localhost:8000/ui/** in your browser.  
@@ -151,11 +135,11 @@ Open **http://localhost:8000/docs** for interactive API docs.
 | `POST /api/inventory/sync` | HITL-approved sync — JSON body + `X-API-Key` |
 | `POST /mock/vori/receiving` | Stand-in grocery/ERP webhook |
 
-### Lovable + Assistant UI
+### Custom frontend (same API)
 
-1. Set **`CORS_ORIGINS`** to your Lovable preview/production URL in server `.env`.  
+1. Add your site’s origin(s) to **`CORS_ORIGINS`** in server `.env`.  
 2. **Upload** → `POST /api/agent/run` or `/api/analyze`.  
-3. **Chat** → on approve intent, `POST /api/inventory/sync` with the same `X-API-Key` and `line_items` from the last response.
+3. **Approve / sync** → `POST /api/inventory/sync` with the same `X-API-Key` and `line_items` from the last analysis response.
 
 ---
 

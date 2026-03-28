@@ -6,7 +6,7 @@ This checklist maps **Devpost requirements** and **judging (20% × 5)** to what 
 
 - [ ] **Public GitHub repo** (no previous-project reuse; build during the sprint).
 - [ ] **Devpost submission** with all requested fields + **3-minute demo video**.
-- [ ] **≥ 3 sponsor tools** used *effectively* (name them explicitly in README + video). **Lovable is not required by that rule** unless the official page says otherwise; **`/ui` + API** is enough for a demo, but **Lovable + Assistant UI** strengthens the sponsor story if you have time.
+- [ ] **≥ 3 sponsor tools** used *effectively* (name them explicitly in README + video). The bundled **`/ui`** plus API satisfies a full demo path.
 - [ ] **Shipables.dev**: publish the skill in `shipables/flux-ai-receiving/` (`shipables login` → `shipables publish`). Author metadata is set to **ab-naidu**; bump version before republishing.
 - [ ] **Luma / ID** per venue rules (in-person).
 
@@ -14,10 +14,10 @@ This checklist maps **Devpost requirements** and **judging (20% × 5)** to what 
 
 ### 1. Autonomy (20%)
 
-- [ ] Show **one action** from the user (upload image on Lovable or call API once).
+- [ ] Show **one action** from the user (e.g. upload image in **`/ui`** or a single API call).
 - [ ] Narrate: system **derives** expected vs actual, computes variance **without manual data entry**.
 - [ ] Show **auto path**: when variance is zero, `POST /api/agent/run` completes sync (response `autonomy: auto_executed_inventory_sync`).
-- [ ] Show **HITL path**: when variance ≠ 0, system **stops** and chat (Assistant UI) + `/api/inventory/sync` completes the story.
+- [ ] Show **HITL path**: when variance ≠ 0, system **stops** and explicit **Approve & sync** on `/ui` (or your client) completes `/api/inventory/sync`.
 
 ### 2. Idea (20%)
 
@@ -38,14 +38,14 @@ Call out at least three, visibly:
 - [ ] **Unkey** — `X-API-Key` rejected when invalid; accepted when valid on `/api/agent/run` and `/api/inventory/sync`.
 - [ ] **Railtracks** — trace IDs in JSON **or** webhook sink if configured (`RAILTRACKS_WEBHOOK_URL`).
 - [ ] **DigitalOcean** — “API hosted on DO” + Dockerfile slide or deploy screen.
-- [ ] **Lovable + Assistant UI** — dashboard + embedded chat driving sync.
+- [ ] **Operator UI** — bundled **`/ui`** or your own client driving the same endpoints.
 
 Optional extra tracks: **Senso.ai** (install official Senso skills / API if you have time), **WorkOS** (SSO on approve route), **Augment Code** (state you built with Augment in Cursor).
 
 ### 5. Presentation / demo (20%)
 
 - [ ] **Script ≤ 3:00** — rehearse twice; record clean audio.
-- [ ] **Live or crisp recording** of: upload → table → (variance) → chat approve → success.
+- [ ] **Live or crisp recording** of: upload → table → (variance) → approve / sync → success.
 - [ ] End with **one sentence** recap + sponsor names.
 
 ## 3-minute script (template)
@@ -55,8 +55,8 @@ Full narrated script with second-level timings: **[`DEMO_SCRIPT.md`](DEMO_SCRIPT
 **Short outline:**
 
 1. **0:00–0:25** — Problem + who hurts (receiver / inventory clerk).
-2. **0:25–1:45** — **Live demo**: upload pallet+invoice → variances appear → **Approve & sync** on `/ui/` (or Lovable + Assistant UI) → success. Mention **agent run** path for zero-variance autonomy.
-3. **1:45–2:40** — **Tools**: Gemini vision, Unkey on mutate, Railtracks traces, DO hosting, optional Lovable UI.
+2. **0:25–1:45** — **Live demo**: upload pallet+invoice → variances appear → **Approve & sync** on `/ui/` → success. Mention **agent run** path for zero-variance autonomy.
+3. **1:45–2:40** — **Tools**: Gemini vision, Unkey on mutate, Railtracks traces, DO hosting, bundled `/ui`.
 4. **2:40–3:00** — Repo + Shipables skill name; what you’d pilot next.
 
 ## Pre-flight commands

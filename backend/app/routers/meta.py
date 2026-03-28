@@ -27,7 +27,7 @@ async def about() -> dict:
                 "not text-only agents; closes receiving reality–data gap with vision + gated ERP write"
             ),
             "technical": "FastAPI end-to-end, structured JSON from Gemini, Unkey-gated mutations, mock ERP webhook",
-            "tool_use": "Gemini + Unkey + trace IDs (Railtracks-style webhook optional) + DO container; Lovable/Assistant UI optional",
+            "tool_use": "Gemini + Unkey + trace IDs (Railtracks-style webhook optional) + DO container + bundled /ui",
             "presentation": "Open GET / or /ui/ for operator demo; GET /docs for Swagger; 3-minute video script in repo DEMO_SCRIPT.md",
         },
         "sponsor_integration": [
@@ -48,8 +48,8 @@ async def about() -> dict:
                 "evidence": "backend/Dockerfile + docker-compose.yml for production deploy",
             },
             {
-                "sponsor": "Lovable + Assistant UI",
-                "evidence": "Optional frontend; bundled /ui demonstrates HITL approve path without CORS",
+                "sponsor": "Operator UI",
+                "evidence": "Bundled /ui on same origin; HITL approve path without extra CORS setup",
             },
         ],
         "links": {
