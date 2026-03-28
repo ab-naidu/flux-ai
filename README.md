@@ -6,7 +6,7 @@
 
 ### The problem
 
-Receivers already **see** the truth: the invoice, the pallet, the case count. The painful part is **translating sight into ERP rows**—slow, error-prone, and almost never replayable for an audit. Flux AI closes that loop: **one photo** (invoice + freight in frame) drives structured extraction, **line-level variance** against what’s visible, and a clear fork—**auto-sync when the math is clean**, **human-in-the-loop + gated API** when it isn’t. The model works from **pixels and layout**, not a text description of the dock.
+**Receiving staff** at a warehouse or DC—dock check-in, receiving clerks, inventory associates—already **see** what arrived: the invoice or packing list, the pallet, the case count. The painful part is **retyping that into the ERP** from memory or notes: slow, error-prone, and hard to reconstruct later for an audit. Flux AI closes that loop: **one photo** (paperwork + freight in the same frame) drives structured extraction, **line-level variance** against what’s visible, and a clear fork—**auto-sync when the math is clean**, **human-in-the-loop + gated API** when it isn’t. The model works from **pixels and layout**, not a chat summary of the dock.
 
 ### How it works
 
