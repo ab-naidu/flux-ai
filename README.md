@@ -49,6 +49,18 @@ Response header **`X-Flux-Sponsor-Tools`** summarizes integrations for demos.
 
 **Submission:** see [`SUBMISSION_CHECKLIST.md`](SUBMISSION_CHECKLIST.md) (Devpost + Shipables + 3-minute video).
 
+### What you do vs what’s already in this repo
+
+| You (account / actions) | Already in repo (I/we shipped) |
+|---------------------------|-------------------------------|
+| Google AI Studio API key | Gemini integration + `.env.example` |
+| Unkey root key + client API key | Verify v2 + gated routes |
+| Run server, open URLs | FastAPI, `/docs`, **`/ui` demo** |
+| Lovable + Assistant UI (optional for extra sponsor points) | API contract in README |
+| DigitalOcean account, create Droplet/App, set env | `Dockerfile`, `docker-compose.yml` |
+| `shipables login` + `publish` | Skill under `shipables/flux-ai-receiving/` |
+| Record video, submit Devpost | `SUBMISSION_CHECKLIST.md` |
+
 ---
 
 ## Rubric alignment (Multimodal Frontier)
@@ -85,6 +97,13 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 Open **http://localhost:8000/docs** for interactive API docs.
 
+### Bundled demo UI (record a video without Lovable)
+
+1. Start the API (see above).  
+2. Open **http://localhost:8000/ui/** in your browser.  
+3. Paste **X-API-Key**, choose an image, **Run agent**. If variances block autonomy, click **Approve & sync**.  
+   Same origin as the API, so no CORS configuration for this page.
+
 ### API summary
 
 | Endpoint | Purpose |
@@ -110,7 +129,13 @@ docker build -t flux-ai-api -f backend/Dockerfile backend
 docker run -p 8000:8000 --env-file backend/.env flux-ai-api
 ```
 
-Set the same secrets on the host as in local `.env` (never commit `.env`).
+Or from repo root (requires `backend/.env` present):
+
+```powershell
+docker compose up --build
+```
+
+Set the same secrets on the host as in local `.env` (never commit `.env`). After deploy, open **`https://YOUR_HOST/ui/`** for the same demo UI.
 
 ---
 

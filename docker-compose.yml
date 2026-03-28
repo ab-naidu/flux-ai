@@ -1,0 +1,11 @@
+# Run: copy backend/.env.example to backend/.env and fill keys, then:
+#   docker compose up --build
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env

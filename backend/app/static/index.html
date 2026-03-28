@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flux AI — receiving demo</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --text: #e7ecf3;
+      --muted: #8b9cb3;
+      --accent: #3b82f6;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 1.5rem;
+      line-height: 1.5;
+      max-width: 960px;
+      margin-inline: auto;
+    }
+    h1 { font-size: 1.35rem; font-weight: 600; margin: 0 0 0.25rem; }
+    .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .panel {
+      background: var(--panel);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      border: 1px solid #2d3a4d;
+    }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.35rem; }
+    input[type="text"], input[type="password"], input[type="file"] {
+      width: 100%;
+      padding: 0.5rem 0.65rem;
+      border-radius: 6px;
+      border: 1px solid #3d4f66;
+      background: #0f1419;
+      color: var(--text);
+    }
+    .row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-top: 0.75rem; }
+    .row label { display: flex; align-items: center; gap: 0.4rem; margin: 0; cursor: pointer; }
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.55rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.secondary { background: #374151; }
+    button.success { background: var(--ok); color: #052e16; }
+    pre {
+      background: #0a0e12;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow: auto;
+      font-size: 0.78rem;
+      border: 1px solid #2d3a4d;
+      max-height: 320px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.5rem; }
+    th, td { text-align: left; padding: 0.45rem 0.5rem; border-bottom: 1px solid #2d3a4d; }
+    th { color: var(--muted); font-weight: 500; }
+    .banner {
+      font-size: 0.8rem;
+      color: var(--warn);
+      margin-bottom: 1rem;
+      padding: 0.6rem 0.75rem;
+      background: #2a2010;
+      border-radius: 6px;
+      border: 1px solid #854d0e;
+    }
+    .trace { font-family: ui-monospace, monospace; font-size: 0.75rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <h1>Flux AI — receiving demo</h1>
+  <p class="sub">Hackathon demo UI (same origin as API — no CORS setup). For local or deployed API.</p>
+  <div class="banner">Demo only: Unkey key is stored in your browser (localStorage). Do not use production secrets here.</div>
+
+  <div class="panel">
+    <label for="apiKey">X-API-Key (Unkey)</label>
+    <input type="password" id="apiKey" placeholder="api_…" autocomplete="off" />
+    <div class="row">
+      <label><input type="checkbox" id="remember" checked /> Remember in localStorage</label>
+    </div>
+  </div>
+
+  <div class="panel">
+    <label for="file">Pallet + invoice image</label>
+    <input type="file" id="file" accept="image/*" />
+    <div class="row">
+      <label><input type="checkbox" id="autoSync" checked /> auto_sync_when_clean</label>
+      <button type="button" id="runAgent">Run agent (/api/agent/run)</button>
+      <button type="button" id="analyzeOnly" class="secondary">Analyze only</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <p class="trace" id="traceLine"></p>
+    <div id="tableWrap"></div>
+    <pre id="out">{}</pre>
+    <div class="row">
+      <button type="button" id="syncBtn" class="success" disabled>Approve &amp; sync (/api/inventory/sync)</button>
+    </div>
+  </div>
+
+  <script>
+    const KEY = "flux_demo_unkey_key";
+    const apiKeyEl = document.getElementById("apiKey");
+    const rememberEl = document.getElementById("remember");
+    const saved = localStorage.getItem(KEY);
+    if (saved) apiKeyEl.value = saved;
+
+    function getKey() {
+      const k = apiKeyEl.value.trim();
+      if (rememberEl.checked && k) localStorage.setItem(KEY, k);
+      else localStorage.removeItem(KEY);
+      return k;
+    }
+
+    let lastPayload = null;
+
+    function show(obj) {
+      document.getElementById("out").textContent = JSON.stringify(obj, null, 2);
+      const tid = obj.trace_id || (obj.sync && obj.sync.trace_id);
+      document.getElementById("traceLine").textContent = tid ? "trace_id: " + tid : "";
+
+      const items = obj.line_items;
+      const wrap = document.getElementById("tableWrap");
+      if (!items || !items.length) {
+        wrap.innerHTML = "";
+        return;
+      }
+      let html = "<table><thead><tr><th>#</th><th>Description</th><th>Expected</th><th>Actual</th><th>Variance</th></tr></thead><tbody>";
+      for (const row of items) {
+        html += "<tr><td>" + (row.line_id ?? "") + "</td><td>" + escapeHtml(String(row.description ?? "")) + "</td><td>" + (row.expected_qty ?? "—") + "</td><td>" + (row.actual_qty ?? "—") + "</td><td>" + (row.variance ?? "—") + "</td></tr>";
+      }
+      html += "</tbody></table>";
+      wrap.innerHTML = html;
+    }
+
+    function escapeHtml(s) {
+      const d = document.createElement("div");
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    async function postAgent(analyzeOnly) {
+      const key = getKey();
+      const f = document.getElementById("file").files[0];
+      if (!f) {
+        alert("Choose an image first.");
+        return;
+      }
+      const fd = new FormData();
+      fd.append("file", f);
+      if (!analyzeOnly) {
+        fd.append("auto_sync_when_clean", document.getElementById("autoSync").checked ? "true" : "false");
+      }
+      const url = analyzeOnly ? "/api/analyze" : "/api/agent/run";
+      const headers = {};
+      if (key) headers["X-API-Key"] = key;
+
+      document.getElementById("syncBtn").disabled = true;
+      lastPayload = null;
+
+      const res = await fetch(url, { method: "POST", headers, body: fd });
+      const raw = await res.text();
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        data = { raw };
+      }
+      if (!res.ok) {
+        show({ error: true, status: res.status, body: data });
+        return;
+      }
+      show(data);
+      lastPayload = data;
+      const canSync =
+        Array.isArray(data.line_items) &&
+        data.line_items.length > 0 &&
+        data.autonomy !== "auto_executed_inventory_sync";
+      document.getElementById("syncBtn").disabled = !canSync;
+    }
+
+    document.getElementById("runAgent").addEventListener("click", () => postAgent(false));
+    document.getElementById("analyzeOnly").addEventListener("click", () => postAgent(true));
+
+    document.getElementById("syncBtn").addEventListener("click", async () => {
+      const key = getKey();
+      if (!key) {
+        alert("Set X-API-Key first.");
+        return;
+      }
+      if (!lastPayload || !lastPayload.line_items) {
+        alert("Run agent first (paused for HITL).");
+        return;
+      }
+      const body = {
+        approved: true,
+        line_items: lastPayload.line_items,
+        notes: "approved via /ui demo",
+        trace_id: lastPayload.trace_id || null,
+      };
+      const res = await fetch("/api/inventory/sync", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Key": key,
+        },
+        body: JSON.stringify(body),
+      });
+      const raw = await res.text();
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        data = { raw };
+      }
+      show({ sync_result: data, previous_agent: lastPayload });
+      document.getElementById("syncBtn").disabled = true;
+    });
+  </script>
+</body>
+</html>
