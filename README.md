@@ -31,8 +31,24 @@ In short: **one image in → structured variance out → safe sync when policy a
 | Layer | Role |
 |-------|------|
 | **This backend (FastAPI)** | Image ingest, Gemini multimodal JSON extraction, variance logic, Unkey-gated sync, mock ERP webhook, trace emission. |
-| **Frontend (Lovable + Assistant UI)** | Enterprise-style dashboard, upload, discrepancy table, conversational approval. *Wire your Lovable app to the API URLs below.* |
+| **Frontend** | **Option A:** bundled **`/ui`** demo in this API. **Option B:** **Lovable** + **Assistant UI** for sponsor-visible polish and chat UX. |
 | **Infrastructure** | Container in `backend/Dockerfile`; intended to run on **DigitalOcean** (or any host) with secrets in env—never in git. |
+
+## Is Lovable required?
+
+**No — not as a hard rule** from the usual Multimodal Frontier wording: you must **effectively use at least three sponsor tools**, not a specific branded frontend. Your **http://localhost:8000/ui/** (and deployed **`/ui`**) already demonstrates the product for judges and video.
+
+**Yes — it’s worth doing** if you want a clear **“we used Lovable”** story, a nicer layout, and **Assistant UI** for the chat sponsor. After you publish the Lovable app, add its URL to Devpost and say in the video: *UI built in Lovable; chat via Assistant UI; API on DigitalOcean.*
+
+Fill in when ready (for your own notes — do not commit secrets):
+
+| Field | Your value |
+|-------|------------|
+| Lovable project URL | _e.g. `https://…lovable.app/…`_ |
+| Public API base | _e.g. `https://your-droplet/…`_ |
+| `CORS_ORIGINS` on server | _must include your Lovable origin_ |
+
+---
 
 ## Hackathon sponsor tools (how they show up)
 

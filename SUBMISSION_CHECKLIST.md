@@ -6,7 +6,7 @@ This checklist maps **Devpost requirements** and **judging (20% × 5)** to what 
 
 - [ ] **Public GitHub repo** (no previous-project reuse; build during the sprint).
 - [ ] **Devpost submission** with all requested fields + **3-minute demo video**.
-- [ ] **≥ 3 sponsor tools** used *effectively* (name them explicitly in README + video).
+- [ ] **≥ 3 sponsor tools** used *effectively* (name them explicitly in README + video). **Lovable is not required by that rule** unless the official page says otherwise; **`/ui` + API** is enough for a demo, but **Lovable + Assistant UI** strengthens the sponsor story if you have time.
 - [ ] **Shipables.dev**: publish the skill in `shipables/flux-ai-receiving/` (`shipables login` → `shipables publish`). Author metadata is set to **ab-naidu**; bump version before republishing.
 - [ ] **Luma / ID** per venue rules (in-person).
 
