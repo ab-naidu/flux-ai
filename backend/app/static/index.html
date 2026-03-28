@@ -40,6 +40,37 @@
       margin: 0 auto;
       padding: 1.5rem 1.25rem 3rem;
     }
+
+    /* Stays visible while scrolling — workflow never “disappears” after Run */
+    .sticky-workflow {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      margin: -0.5rem -1.25rem 1.25rem;
+      padding: 0.85rem 1.25rem 1rem;
+      background: rgba(12, 15, 20, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+    .sticky-workflow header {
+      margin-bottom: 1rem;
+    }
+    .workflow-current {
+      font-size: 0.8rem;
+      color: var(--accent);
+      margin: 0 0 0.65rem;
+      padding: 0.35rem 0.5rem;
+      background: var(--accent-dim);
+      border-radius: 8px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+    .workflow-current strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
     header {
       margin-bottom: 1.75rem;
     }
@@ -70,7 +101,7 @@
       justify-content: space-between;
       align-items: flex-start;
       gap: 0.25rem;
-      margin-bottom: 1.75rem;
+      margin-bottom: 0.5rem;
       padding: 0 0.25rem;
     }
     .stepper .step {
@@ -128,6 +159,7 @@
       border-radius: var(--radius);
       padding: 1.25rem 1.35rem;
       margin-bottom: 1rem;
+      scroll-margin-top: 7rem;
     }
     .card h2 {
       font-size: 0.75rem;
@@ -345,7 +377,7 @@
       position: fixed;
       inset: 0;
       background: rgba(12, 15, 20, 0.88);
-      z-index: 50;
+      z-index: 200;
       align-items: center;
       justify-content: center;
       flex-direction: column;
@@ -382,7 +414,11 @@
       border: 1px solid rgba(251, 191, 36, 0.3);
       padding: 0.55rem 0.75rem;
       border-radius: 8px;
-      margin-bottom: 1rem;
+      margin-bottom: 0;
+    }
+
+    main#main {
+      scroll-margin-top: 8rem;
     }
     footer {
       margin-top: 2rem;
@@ -390,25 +426,43 @@
       color: var(--muted);
       line-height: 1.6;
     }
+    @media (max-width: 520px) {
+      .sticky-workflow header .tagline {
+        font-size: 0.85rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .stepper .step {
+        font-size: 0.62rem;
+      }
+    }
   </style>
 </head>
 <body>
   <a class="skip" href="#main">Skip to main</a>
   <div class="wrap">
-    <header>
-      <h1>Flux AI</h1>
-      <p class="tagline">Receiving audit from <strong>real dock photos</strong> — invoice and goods in one frame. The agent reads the scene, checks variance, then updates inventory only when policy allows.</p>
-      <p class="theme">Multimodal Frontier: perception in the real world, not text-only prompts.</p>
-    </header>
+    <div class="sticky-workflow" id="stickyWorkflow">
+      <header>
+        <h1>Flux AI</h1>
+        <p class="tagline">Receiving audit from <strong>real dock photos</strong> — invoice and goods in one frame. The agent reads the scene, checks variance, then updates inventory only when policy allows.</p>
+        <p class="theme">Multimodal Frontier: perception in the real world, not text-only prompts.</p>
+      </header>
 
-    <nav class="stepper" aria-label="Workflow progress">
-      <div class="step active" data-n="1" id="st1">Setup</div>
-      <div class="step" data-n="2" id="st2">Capture</div>
-      <div class="step" data-n="3" id="st3">Audit</div>
-      <div class="step" data-n="4" id="st4">Outcome</div>
-    </nav>
+      <nav class="stepper" aria-label="Workflow progress">
+        <div class="step active" data-n="1" id="st1">Setup</div>
+        <div class="step" data-n="2" id="st2">Capture</div>
+        <div class="step" data-n="3" id="st3">Audit</div>
+        <div class="step" data-n="4" id="st4">Outcome</div>
+      </nav>
 
-    <div class="demo-note">Demo: your API key is stored in this browser if you check “Remember”. Use a test key only.</div>
+      <p class="workflow-current" id="workflowCurrent" aria-live="polite">
+        <strong>Current step:</strong> <span id="workflowCurrentLabel">Setup — enter your API access key</span>
+      </p>
+
+      <div class="demo-note">Demo: your API key is stored in this browser if you check “Remember”. Use a test key only.</div>
+    </div>
 
     <main id="main">
       <section class="card" aria-labelledby="sec-setup">
@@ -490,6 +544,13 @@
       return k;
     }
 
+    const STEP_LABELS = {
+      1: "Setup — enter your API access key",
+      2: "Capture — add a delivery photo (invoice + goods in one frame)",
+      3: "Audit — verifying access and running multimodal analysis",
+      4: "Outcome — review below; confirm inventory update if required",
+    };
+
     function setStep(n) {
       for (let i = 1; i <= 4; i++) {
         const el = document.getElementById("st" + i);
@@ -497,6 +558,8 @@
         if (i < n) el.classList.add("done");
         else if (i === n) el.classList.add("active");
       }
+      const lbl = document.getElementById("workflowCurrentLabel");
+      if (lbl && STEP_LABELS[n]) lbl.textContent = STEP_LABELS[n];
     }
 
     dropzone.addEventListener("click", () => fileEl.click());
