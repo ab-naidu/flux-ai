@@ -2,7 +2,9 @@
 
 **Zero-shot autonomous auditor** for physical-to-digital receiving.
 
-The loading dock already has the evidence. The ERP usually gets a **second-hand story**—typed late, under pressure, sometimes wrong. **Flux AI lets the shipment speak for itself:** camera in, structured facts out, with guardrails before anything hits inventory.
+**If you are new here:** this repo is about **warehouse receiving**—when a delivery arrives, staff stand in front of **real pallets, cases, and printed paperwork** (invoice or packing list). That physical scene is the source of truth. The corporate **ERP / inventory system** usually does not “see” the truck; it only gets **whatever someone types in** afterward—often rushed, sometimes wrong, and painful to reconstruct for audits.
+
+**Flux AI** shortens that path: you take **one photo** with **both the paperwork and the freight in frame**. A vision model extracts structured quantities and line items, compares **what the paper says** to **what the image suggests is on the load**, and then either **posts a clean receipt automatically** or **stops for human approval** before calling a **key-protected** inventory API.
 
 ---
 
