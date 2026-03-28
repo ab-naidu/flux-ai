@@ -3,150 +3,483 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Flux AI — receiving demo</title>
+  <title>Flux AI — Receiving audit</title>
   <style>
     :root {
-      --bg: #0f1419;
-      --panel: #1a2332;
-      --text: #e7ecf3;
-      --muted: #8b9cb3;
-      --accent: #3b82f6;
-      --ok: #22c55e;
-      --warn: #f59e0b;
+      --bg: #0c0f14;
+      --surface: #151a22;
+      --surface2: #1c2330;
+      --border: #2a3444;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-dim: rgba(56, 189, 248, 0.15);
+      --ok: #4ade80;
+      --ok-bg: rgba(74, 222, 128, 0.12);
+      --warn: #fbbf24;
+      --warn-bg: rgba(251, 191, 36, 0.1);
+      --err: #f87171;
+      --err-bg: rgba(248, 113, 113, 0.1);
+      --radius: 14px;
+      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
     }
     * { box-sizing: border-box; }
     body {
-      font-family: ui-sans-serif, system-ui, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(56, 189, 248, 0.08), transparent),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .skip { position: absolute; left: -9999px; }
+    .skip:focus { left: 1rem; top: 1rem; z-index: 100; padding: 0.5rem 1rem; background: var(--accent); color: #000; }
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+    }
+    header {
+      margin-bottom: 1.75rem;
+    }
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.35rem;
+    }
+    header .tagline {
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 38rem;
+    }
+    header .theme {
+      margin-top: 0.65rem;
+      font-size: 0.8rem;
+      color: var(--accent);
+      padding: 0.45rem 0.65rem;
+      background: var(--accent-dim);
+      border-radius: 8px;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    /* Stepper */
+    .stepper {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.25rem;
+      margin-bottom: 1.75rem;
+      padding: 0 0.25rem;
+    }
+    .stepper .step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .stepper .step::before {
+      content: attr(data-n);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      margin: 0 auto 0.4rem;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .stepper .step.active::before {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    .stepper .step.done::before {
+      content: "✓";
+      background: var(--ok-bg);
+      border-color: var(--ok);
+      color: var(--ok);
+    }
+    .stepper .step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 1rem;
+      left: calc(50% + 1.25rem);
+      width: calc(100% - 2.5rem);
+      height: 2px;
+      background: var(--border);
+      z-index: -1;
+    }
+    .stepper .step.done:not(:last-child)::after {
+      background: linear-gradient(90deg, var(--ok), var(--border));
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.35rem;
+      margin-bottom: 1rem;
+    }
+    .card h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin: 0 0 0.85rem;
+      font-weight: 600;
+    }
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin: -0.35rem 0 0.85rem;
+    }
+    label.vis {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+    input[type="password"] {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
       background: var(--bg);
       color: var(--text);
-      margin: 0;
-      padding: 1.5rem;
-      line-height: 1.5;
-      max-width: 960px;
-      margin-inline: auto;
+      font-size: 1rem;
     }
-    h1 { font-size: 1.35rem; font-weight: 600; margin: 0 0 0.25rem; }
-    .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.25rem; }
-    .panel {
-      background: var(--panel);
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 1rem;
-      border: 1px solid #2d3a4d;
+    input[type="password"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
     }
-    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.35rem; }
-    input[type="text"], input[type="password"], input[type="file"] {
-      width: 100%;
-      padding: 0.5rem 0.65rem;
-      border-radius: 6px;
-      border: 1px solid #3d4f66;
-      background: #0f1419;
-      color: var(--text);
-    }
-    .row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-top: 0.75rem; }
-    .row label { display: flex; align-items: center; gap: 0.4rem; margin: 0; cursor: pointer; }
-    button {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 0.55rem 1rem;
-      border-radius: 6px;
-      font-weight: 600;
+    .chk {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      color: var(--muted);
       cursor: pointer;
     }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    button.secondary { background: #374151; }
-    button.success { background: var(--ok); color: #052e16; }
-    pre {
-      background: #0a0e12;
-      padding: 1rem;
-      border-radius: 8px;
-      overflow: auto;
-      font-size: 0.78rem;
-      border: 1px solid #2d3a4d;
-      max-height: 320px;
+
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: var(--surface2);
     }
-    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.5rem; }
-    th, td { text-align: left; padding: 0.45rem 0.5rem; border-bottom: 1px solid #2d3a4d; }
-    th { color: var(--muted); font-weight: 500; }
-    .banner {
-      font-size: 0.8rem;
-      color: var(--warn);
-      margin-bottom: 1rem;
-      padding: 0.6rem 0.75rem;
-      background: #2a2010;
-      border-radius: 6px;
-      border: 1px solid #854d0e;
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
     }
-    .trace { font-family: ui-monospace, monospace; font-size: 0.75rem; color: var(--muted); }
-    #autonomyBanner {
+    .dropzone strong { color: var(--text); }
+    .dropzone input { display: none; }
+    .preview {
+      margin-top: 1rem;
+      max-height: 200px;
+      border-radius: 10px;
+      overflow: hidden;
       display: none;
-      font-size: 0.95rem;
+      border: 1px solid var(--border);
+    }
+    .preview img { width: 100%; height: auto; display: block; vertical-align: middle; }
+    .preview.show { display: block; }
+
+    .toggle-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.85rem 1rem;
+      background: var(--surface2);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin-top: 1rem;
+      cursor: pointer;
+    }
+    .toggle-row input { margin-top: 0.2rem; }
+    .toggle-row div { font-size: 0.88rem; }
+    .toggle-row small { display: block; color: var(--muted); font-size: 0.78rem; margin-top: 0.25rem; }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-top: 1.1rem;
+    }
+    button {
+      font-family: inherit;
+      font-size: 0.92rem;
       font-weight: 600;
-      padding: 0.75rem 1rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    button:active:not(:disabled) { transform: scale(0.98); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary {
+      background: linear-gradient(180deg, #0ea5e9, #0284c7);
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(14, 165, 233, 0.35);
+    }
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-success {
+      background: linear-gradient(180deg, #22c55e, #16a34a);
+      color: #052e16;
+      width: 100%;
+      padding: 0.9rem;
+      font-size: 1rem;
+    }
+
+    /* Outcome */
+    #outcomeCard {
+      display: none;
+    }
+    #outcomeCard.visible { display: block; }
+    .outcome-headline {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    .outcome-sub {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin: 0 0 1rem;
+    }
+    .outcome-next {
+      font-size: 0.88rem;
+      padding: 0.65rem 0.85rem;
+      background: var(--surface2);
+      border-radius: 10px;
+      border-left: 3px solid var(--accent);
+      margin-bottom: 1rem;
+    }
+    .mini-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
+    }
+    .mini-step {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+    }
+    .mini-step .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+    .mini-step.done .dot { background: var(--ok); }
+    .mini-step.blocked .dot { background: var(--warn); }
+    .mini-step.error .dot { background: var(--err); }
+    .mini-step.skip .dot { background: var(--muted); opacity: 0.5; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+    th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 600;
+      padding: 0.5rem 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 0.55rem 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .trace {
+      font-family: ui-monospace, monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.75rem;
+    }
+    details.tech {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+    }
+    details.tech summary {
+      cursor: pointer;
+      color: var(--muted);
+      user-select: none;
+    }
+    details.tech pre {
+      margin-top: 0.65rem;
+      padding: 1rem;
+      background: var(--bg);
+      border-radius: 10px;
+      overflow: auto;
+      max-height: 240px;
+      font-size: 0.72rem;
+      border: 1px solid var(--border);
+    }
+
+    /* Loading overlay */
+    #loading {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(12, 15, 20, 0.88);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 2rem;
+    }
+    #loading.show { display: flex; }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loadingMsg {
+      margin-top: 1.5rem;
+      text-align: center;
+      max-width: 22rem;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+    #loadingSub {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .demo-note {
+      font-size: 0.78rem;
+      color: var(--warn);
+      background: var(--warn-bg);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      padding: 0.55rem 0.75rem;
       border-radius: 8px;
       margin-bottom: 1rem;
-      border: 1px solid #2d3a4d;
     }
-    #autonomyBanner.pill-auto { display: block; background: #052e16; color: #86efac; border-color: #166534; }
-    #autonomyBanner.pill-hitl { display: block; background: #2a2010; color: #fcd34d; border-color: #854d0e; }
-    #autonomyBanner.pill-err { display: block; background: #450a0a; color: #fca5a5; border-color: #991b1b; }
-    #autonomyBanner.pill-neutral { display: block; background: #1e293b; color: #94a3b8; border-color: #334155; }
-    .sponsors {
+    footer {
       margin-top: 2rem;
-      padding-top: 1rem;
-      border-top: 1px solid #2d3a4d;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--muted);
       line-height: 1.6;
     }
-    .sponsors strong { color: #cbd5e1; }
   </style>
 </head>
 <body>
-  <h1>Flux AI — receiving demo</h1>
-  <p class="sub">Multimodal Frontier: real-world <strong>image</strong> in → structured audit out (not text-only). Same origin as API — no CORS. Judges: <code>/api/about</code> · <code>/docs</code></p>
-  <div id="autonomyBanner" role="status"></div>
-  <div class="banner">Demo only: Unkey key is stored in your browser (localStorage). Do not use production secrets here.</div>
+  <a class="skip" href="#main">Skip to main</a>
+  <div class="wrap">
+    <header>
+      <h1>Flux AI</h1>
+      <p class="tagline">Receiving audit from <strong>real dock photos</strong> — invoice and goods in one frame. The agent reads the scene, checks variance, then updates inventory only when policy allows.</p>
+      <p class="theme">Multimodal Frontier: perception in the real world, not text-only prompts.</p>
+    </header>
 
-  <div class="panel">
-    <label for="apiKey">X-API-Key (Unkey)</label>
-    <input type="password" id="apiKey" placeholder="api_…" autocomplete="off" />
-    <div class="row">
-      <label><input type="checkbox" id="remember" checked /> Remember in localStorage</label>
-    </div>
+    <nav class="stepper" aria-label="Workflow progress">
+      <div class="step active" data-n="1" id="st1">Setup</div>
+      <div class="step" data-n="2" id="st2">Capture</div>
+      <div class="step" data-n="3" id="st3">Audit</div>
+      <div class="step" data-n="4" id="st4">Outcome</div>
+    </nav>
+
+    <div class="demo-note">Demo: your API key is stored in this browser if you check “Remember”. Use a test key only.</div>
+
+    <main id="main">
+      <section class="card" aria-labelledby="sec-setup">
+        <h2 id="sec-setup">1 · Secure this session</h2>
+        <p class="hint">Unkey proves you’re allowed to trigger inventory writes. Paste the same key your operator app would use.</p>
+        <label class="vis" for="apiKey">API access key</label>
+        <input type="password" id="apiKey" placeholder="Your Unkey client key" autocomplete="off" />
+        <label class="chk"><input type="checkbox" id="remember" checked /> Remember on this device</label>
+      </section>
+
+      <section class="card" aria-labelledby="sec-capture">
+        <h2 id="sec-capture">2 · Capture delivery</h2>
+        <p class="hint">Best results: invoice and pallet/cases visible in one shot — same view a receiver would use.</p>
+        <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Drop photo or click to upload">
+          <input type="file" id="file" accept="image/*" aria-label="Choose delivery photo" />
+          <strong>Drop image here</strong> or click to choose<br />
+          <span style="color:var(--muted);font-size:0.85rem">JPG, PNG, WebP · max 12 MB</span>
+        </div>
+        <div class="preview" id="preview"><img id="previewImg" alt="Delivery preview" /></div>
+
+        <label class="toggle-row">
+          <input type="checkbox" id="autoSync" checked />
+          <div>
+            <strong>Update inventory automatically</strong> when the model finds no blocking variance
+            <small>If turned off, you’ll only get analysis until you use another path to sync.</small>
+          </div>
+        </label>
+
+        <div class="actions">
+          <button type="button" class="btn-primary" id="runAgent">Run full receiving audit</button>
+          <button type="button" class="btn-secondary" id="analyzeOnly">Read photo only</button>
+        </div>
+      </section>
+
+      <section class="card" id="outcomeCard" aria-live="polite">
+        <h2>3 · What happened</h2>
+        <p class="outcome-headline" id="obHeadline"></p>
+        <p class="outcome-sub" id="obSub"></p>
+        <div class="outcome-next" id="obNext" hidden></div>
+        <div class="mini-steps" id="miniSteps"></div>
+        <div id="tableWrap"></div>
+        <p class="trace" id="traceLine"></p>
+        <button type="button" class="btn-success" id="syncBtn" disabled>Confirm inventory update</button>
+        <details class="tech">
+          <summary>Technical JSON (judges / developers)</summary>
+          <pre id="out">{}</pre>
+        </details>
+      </section>
+    </main>
+
+    <footer>
+      Stack: Google Gemini (vision) · Unkey (gated writes) · trace IDs for audit · Docker-ready for DigitalOcean.
+      Open <code>/api/about</code> or <code>/docs</code> for API details.
+    </footer>
   </div>
 
-  <div class="panel">
-    <label for="file">Pallet + invoice image</label>
-    <input type="file" id="file" accept="image/*" />
-    <div class="row">
-      <label><input type="checkbox" id="autoSync" checked /> auto_sync_when_clean</label>
-      <button type="button" id="runAgent">Run agent (/api/agent/run)</button>
-      <button type="button" id="analyzeOnly" class="secondary">Analyze only</button>
-    </div>
+  <div id="loading" role="alertdialog" aria-modal="true" aria-labelledby="loadingMsg" aria-busy="true">
+    <div class="spinner"></div>
+    <p id="loadingMsg">Working…</p>
+    <p id="loadingSub">Secure check → multimodal read → compare → optional ERP post</p>
   </div>
-
-  <div class="panel">
-    <p class="trace" id="traceLine"></p>
-    <div id="tableWrap"></div>
-    <pre id="out">{}</pre>
-    <div class="row">
-      <button type="button" id="syncBtn" class="success" disabled>Approve &amp; sync (/api/inventory/sync)</button>
-    </div>
-  </div>
-
-  <footer class="sponsors">
-    <strong>Sponsor tools visible in this demo:</strong>
-    Google Gemini (vision JSON) · Unkey (<code>X-API-Key</code>) · trace_id (Railtracks-style audit) ·
-    DigitalOcean-ready API · Optional Lovable + Assistant UI for production UI.
-    Response header <code>X-Flux-Sponsor-Tools</code> on API calls.
-  </footer>
 
   <script>
     const KEY = "flux_demo_unkey_key";
     const apiKeyEl = document.getElementById("apiKey");
     const rememberEl = document.getElementById("remember");
+    const fileEl = document.getElementById("file");
+    const dropzone = document.getElementById("dropzone");
+    const preview = document.getElementById("preview");
+    const previewImg = document.getElementById("previewImg");
+
     const saved = localStorage.getItem(KEY);
     if (saved) apiKeyEl.value = saved;
 
@@ -157,63 +490,97 @@
       return k;
     }
 
-    let lastPayload = null;
-
-    function updateAutonomyBanner(data) {
-      const el = document.getElementById("autonomyBanner");
-      el.className = "";
-      if (data.error) {
-        el.textContent = "Blocked — HTTP " + (data.status || "?") + " (fix keys / server; autonomy cannot proceed).";
-        el.classList.add("pill-err");
-        return;
+    function setStep(n) {
+      for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById("st" + i);
+        el.classList.remove("active", "done");
+        if (i < n) el.classList.add("done");
+        else if (i === n) el.classList.add("active");
       }
-      if (data.sync_result) {
-        el.textContent = "HITL path: operator approved → Unkey-gated POST /api/inventory/sync completed.";
-        el.classList.add("pill-hitl");
-        return;
-      }
-      const a = data.autonomy;
-      if (a === "auto_executed_inventory_sync") {
-        el.textContent = "Autonomy (rubric): FULL — zero variance → inventory sync ran with no extra UI steps.";
-        el.classList.add("pill-auto");
-        return;
-      }
-      if (a === "paused_for_hitl") {
-        el.textContent = "Autonomy (rubric): PAUSED — variance detected → human must Approve & sync.";
-        el.classList.add("pill-hitl");
-        return;
-      }
-      if (a === "completed_without_manual_steps") {
-        el.textContent = "Agent returned clean analysis (edge case).";
-        el.classList.add("pill-neutral");
-        return;
-      }
-      if (data.line_items && !data.autonomy) {
-        el.textContent = "Analyze-only: multimodal extraction (Gemini). Use Run agent for full autonomy path.";
-        el.classList.add("pill-neutral");
-        return;
-      }
-      el.style.display = "none";
     }
 
-    function show(obj) {
-      document.getElementById("out").textContent = JSON.stringify(obj, null, 2);
-      const tid = obj.trace_id || (obj.sync && obj.sync.trace_id) || (obj.previous_agent && obj.previous_agent.trace_id);
-      document.getElementById("traceLine").textContent = tid ? "trace_id: " + tid : "";
-
-      const items = obj.line_items || (obj.previous_agent && obj.previous_agent.line_items);
-      const wrap = document.getElementById("tableWrap");
-      if (!items || !items.length) {
-        wrap.innerHTML = "";
-      } else {
-        let html = "<table><thead><tr><th>#</th><th>Description</th><th>Expected</th><th>Actual</th><th>Variance</th></tr></thead><tbody>";
-        for (const row of items) {
-          html += "<tr><td>" + (row.line_id ?? "") + "</td><td>" + escapeHtml(String(row.description ?? "")) + "</td><td>" + (row.expected_qty ?? "—") + "</td><td>" + (row.actual_qty ?? "—") + "</td><td>" + (row.variance ?? "—") + "</td></tr>";
-        }
-        html += "</tbody></table>";
-        wrap.innerHTML = html;
+    dropzone.addEventListener("click", () => fileEl.click());
+    dropzone.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileEl.click(); }
+    });
+    ["dragenter", "dragover"].forEach((ev) => {
+      dropzone.addEventListener(ev, (e) => { e.preventDefault(); dropzone.classList.add("dragover"); });
+    });
+    ["dragleave", "drop"].forEach((ev) => {
+      dropzone.addEventListener(ev, (e) => { e.preventDefault(); dropzone.classList.remove("dragover"); });
+    });
+    dropzone.addEventListener("drop", (e) => {
+      const f = e.dataTransfer.files[0];
+      if (f && f.type.startsWith("image/")) {
+        fileEl.files = e.dataTransfer.files;
+        onFile();
       }
-      updateAutonomyBanner(obj);
+    });
+    fileEl.addEventListener("change", onFile);
+
+    function onFile() {
+      const f = fileEl.files[0];
+      if (!f) {
+        preview.classList.remove("show");
+        setStep(apiKeyEl.value.trim() ? 2 : 1);
+        return;
+      }
+      previewImg.src = URL.createObjectURL(f);
+      preview.classList.add("show");
+      setStep(2);
+    }
+
+    if (apiKeyEl.value.trim()) setStep(2);
+
+    const LOADING_LINES = [
+      "Verifying your API key with Unkey…",
+      "Sending the photo to Gemini — reading invoice text and what’s on the pallet…",
+      "Comparing expected quantities to what the model sees in the image…",
+      "Applying policy: auto-update only if there’s no blocking variance…",
+    ];
+    let loadInterval = null;
+
+    function showLoading(on) {
+      const el = document.getElementById("loading");
+      const msg = document.getElementById("loadingMsg");
+      if (!on) {
+        el.classList.remove("show");
+        if (loadInterval) clearInterval(loadInterval);
+        loadInterval = null;
+        return;
+      }
+      el.classList.add("show");
+      let i = 0;
+      msg.textContent = LOADING_LINES[0];
+      loadInterval = setInterval(() => {
+        i = (i + 1) % LOADING_LINES.length;
+        msg.textContent = LOADING_LINES[i];
+      }, 2800);
+    }
+
+    let lastPayload = null;
+
+    function renderBrief(brief) {
+      document.getElementById("obHeadline").textContent = brief.headline || "Result";
+      document.getElementById("obSub").textContent = brief.subtext || "";
+      const nx = document.getElementById("obNext");
+      if (brief.next_action) {
+        nx.hidden = false;
+        nx.innerHTML = "<strong>Next:</strong> " + escapeHtml(brief.next_action);
+      } else {
+        nx.hidden = true;
+      }
+      const ms = document.getElementById("miniSteps");
+      ms.innerHTML = "";
+      (brief.steps || []).forEach((s) => {
+        const st = (s.state || "").toLowerCase();
+        let cls = "";
+        if (st === "done") cls = "done";
+        else if (st === "blocked") cls = "blocked";
+        else if (st === "error") cls = "error";
+        else if (st === "skipped" || st === "unknown") cls = "skip";
+        ms.innerHTML += '<div class="mini-step ' + cls + '"><span class="dot"></span><span>' + escapeHtml(s.label) + "</span></div>";
+      });
     }
 
     function escapeHtml(s) {
@@ -222,11 +589,78 @@
       return d.innerHTML;
     }
 
+    function show(obj) {
+      document.getElementById("out").textContent = JSON.stringify(obj, null, 2);
+      const brief = obj.operator_brief || obj.previous_agent?.operator_brief;
+      if (brief) renderBrief(brief);
+      else if (obj.sync_result && obj.previous_agent) {
+        renderBrief({
+          headline: "Inventory update sent",
+          subtext: "Your approval was applied. Downstream response is in the technical JSON.",
+          next_action: "Start another delivery with a new photo.",
+          steps: [
+            { id: "u", label: "Photo received", state: "done" },
+            { id: "v", label: "Gemini read", state: "done" },
+            { id: "c", label: "Variance / approval", state: "done" },
+            { id: "s", label: "Inventory update", state: obj.sync_result.ok ? "done" : "error" },
+          ],
+        });
+      } else if (obj.error) {
+        renderBrief({
+          headline: "Something blocked the run",
+          subtext: typeof obj.body === "object" && obj.body.detail
+            ? String(obj.body.detail)
+            : "Check API keys, server logs, and network.",
+          next_action: "Fix the issue and try again.",
+          steps: [
+            { label: "Request", state: "error" },
+            { label: "Vision", state: "skip" },
+            { label: "Compare", state: "skip" },
+            { label: "Sync", state: "skip" },
+          ],
+        });
+      }
+
+      const tid =
+        obj.trace_id ||
+        (obj.sync && obj.sync.trace_id) ||
+        (obj.previous_agent && obj.previous_agent.trace_id);
+      document.getElementById("traceLine").textContent = tid ? "Audit trace: " + tid : "";
+
+      const items = obj.line_items || (obj.previous_agent && obj.previous_agent.line_items);
+      const wrap = document.getElementById("tableWrap");
+      if (!items || !items.length) {
+        wrap.innerHTML = "";
+      } else {
+        let html =
+          "<table><thead><tr><th>#</th><th>Item</th><th>Expected</th><th>Seen</th><th>Variance</th></tr></thead><tbody>";
+        for (const row of items) {
+          html +=
+            "<tr><td>" +
+            (row.line_id ?? "") +
+            "</td><td>" +
+            escapeHtml(String(row.description ?? "")) +
+            "</td><td>" +
+            (row.expected_qty ?? "—") +
+            "</td><td>" +
+            (row.actual_qty ?? "—") +
+            "</td><td>" +
+            (row.variance ?? "—") +
+            "</td></tr>";
+        }
+        html += "</tbody></table>";
+        wrap.innerHTML = html;
+      }
+
+      document.getElementById("outcomeCard").classList.add("visible");
+      setStep(4);
+    }
+
     async function postAgent(analyzeOnly) {
       const key = getKey();
-      const f = document.getElementById("file").files[0];
+      const f = fileEl.files[0];
       if (!f) {
-        alert("Choose an image first.");
+        alert("Add a delivery photo first — drag and drop or click the capture area.");
         return;
       }
       const fd = new FormData();
@@ -240,15 +674,22 @@
 
       document.getElementById("syncBtn").disabled = true;
       lastPayload = null;
+      setStep(3);
+      showLoading(true);
 
-      const res = await fetch(url, { method: "POST", headers, body: fd });
-      const raw = await res.text();
-      let data;
+      let res, raw, data;
       try {
-        data = JSON.parse(raw);
-      } catch {
-        data = { raw };
+        res = await fetch(url, { method: "POST", headers, body: fd });
+        raw = await res.text();
+        try {
+          data = JSON.parse(raw);
+        } catch {
+          data = { raw };
+        }
+      } finally {
+        showLoading(false);
       }
+
       if (!res.ok) {
         show({ error: true, status: res.status, body: data, line_items: data.line_items });
         return;
@@ -260,6 +701,7 @@
         data.line_items.length > 0 &&
         data.autonomy !== "auto_executed_inventory_sync";
       document.getElementById("syncBtn").disabled = !canSync;
+      if (analyzeOnly) setStep(3);
     }
 
     document.getElementById("runAgent").addEventListener("click", () => postAgent(false));
@@ -268,36 +710,42 @@
     document.getElementById("syncBtn").addEventListener("click", async () => {
       const key = getKey();
       if (!key) {
-        alert("Set X-API-Key first.");
+        alert("Add your API key in step 1.");
         return;
       }
       if (!lastPayload || !lastPayload.line_items) {
-        alert("Run agent first (paused for HITL).");
         return;
       }
+      showLoading(true);
       const body = {
         approved: true,
         line_items: lastPayload.line_items,
-        notes: "approved via /ui demo",
+        notes: "confirmed via Flux /ui",
         trace_id: lastPayload.trace_id || null,
       };
-      const res = await fetch("/api/inventory/sync", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-API-Key": key,
-        },
-        body: JSON.stringify(body),
-      });
-      const raw = await res.text();
-      let data;
+      let res, raw, data;
       try {
-        data = JSON.parse(raw);
-      } catch {
-        data = { raw };
+        res = await fetch("/api/inventory/sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-API-Key": key },
+          body: JSON.stringify(body),
+        });
+        raw = await res.text();
+        try {
+          data = JSON.parse(raw);
+        } catch {
+          data = { raw };
+        }
+      } finally {
+        showLoading(false);
       }
-      show({ sync_result: data, previous_agent: lastPayload });
+      show({ sync_result: data, previous_agent: lastPayload, operator_brief: undefined });
       document.getElementById("syncBtn").disabled = true;
+    });
+
+    apiKeyEl.addEventListener("input", () => {
+      if (apiKeyEl.value.trim() && fileEl.files[0]) setStep(2);
+      else if (apiKeyEl.value.trim()) setStep(1);
     });
   </script>
 </body>

@@ -12,6 +12,7 @@ from app.deps import ensure_unkey_validated
 from app.schemas import InventorySyncRequest, InventorySyncResponse
 from app.services.gemini_service import analyze_delivery_image
 from app.services.inventory_service import perform_inventory_sync
+from app.services.operator_brief import brief_for_agent
 from app.services.railtracks import trace
 
 router = APIRouter(prefix="/api/agent", tags=["agent"])
@@ -73,7 +74,13 @@ async def agent_run(
 
         if hitl or not auto_sync_when_clean:
             out["next_step"] = (
-                "Use Assistant UI to approve; then POST /api/inventory/sync with the same X-API-Key."
+                "Review the variance table, then confirm inventory update in the app (or POST /api/inventory/sync)."
+            )
+            out["operator_brief"] = brief_for_agent(
+                hitl=hitl,
+                auto_sync_when_clean=auto_sync_when_clean,
+                autonomy=str(out["autonomy"]),
+                sync_ok=None,
             )
             return out
 
@@ -86,4 +93,27 @@ async def agent_run(
         sync_result: InventorySyncResponse = await perform_inventory_sync(sync_body)
         out["sync"] = sync_result.model_dump()
         out["autonomy"] = "auto_executed_inventory_sync"
+        sync_ok = bool(sync_result.ok)
+        if sync_ok:
+            out["operator_brief"] = brief_for_agent(
+                hitl=False,
+                auto_sync_when_clean=True,
+                autonomy="auto_executed_inventory_sync",
+                sync_ok=True,
+            )
+        else:
+            out["operator_brief"] = {
+                "headline": "Vision succeeded — inventory update failed",
+                "subtext": (
+                    "The agent compared invoice to scene and attempted a gated write, but the downstream "
+                    "system did not accept it. Check API logs or mock URL configuration."
+                ),
+                "next_action": "Inspect the sync block in the response or fix the target endpoint.",
+                "steps": [
+                    {"id": "upload", "label": "Photo received", "state": "done"},
+                    {"id": "vision", "label": "Gemini read invoice + scene", "state": "done"},
+                    {"id": "compare", "label": "Variance check", "state": "done"},
+                    {"id": "sync", "label": "Inventory update", "state": "error"},
+                ],
+            }
         return out

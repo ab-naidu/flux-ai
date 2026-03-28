@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.services.gemini_service import analyze_delivery_image
+from app.services.operator_brief import brief_for_analyze
 from app.services.railtracks import trace
 
 router = APIRouter(prefix="/api", tags=["analyze"])
@@ -25,4 +26,9 @@ async def analyze(
             raise HTTPException(status_code=503, detail=str(e)) from e
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Analysis failed: {e!s}") from e
-        return {"trace_id": trace_id, **result}
+        notes = (result.get("notes") or "").strip()
+        return {
+            "trace_id": trace_id,
+            "operator_brief": brief_for_analyze(notes),
+            **result,
+        }

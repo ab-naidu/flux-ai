@@ -28,7 +28,10 @@ async def about() -> dict:
             ),
             "technical": "FastAPI end-to-end, structured JSON from Gemini, Unkey-gated mutations, mock ERP webhook",
             "tool_use": "Gemini + Unkey + trace IDs (Railtracks-style webhook optional) + DO container + bundled /ui",
-            "presentation": "Open GET / or /ui/ for operator demo; GET /docs for Swagger; 3-minute video script in repo DEMO_SCRIPT.md",
+            "presentation": (
+                "GET / or /ui/ — guided operator UI with loading narrative, outcome copy (operator_brief), "
+                "and collapsible JSON; DEMO_SCRIPT.md for video"
+            ),
         },
         "sponsor_integration": [
             {

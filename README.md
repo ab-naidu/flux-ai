@@ -118,9 +118,9 @@ Open **http://localhost:8000/docs** for interactive API docs.
 ### Bundled demo UI
 
 1. Start the API (see above).  
-2. Open **http://localhost:8000/ui/** in your browser.  
-3. Paste **X-API-Key**, choose an image, **Run agent**. If variances block autonomy, click **Approve & sync**.  
-   Same origin as the API, so no CORS configuration for this page.
+2. Open **http://localhost:8000/ui/** (or **`/`**, which redirects there).  
+3. The UI is **step-based** for recordings: secure session → capture photo → full audit, with a **loading narrative** while Gemini runs, plain-language **outcomes** from `operator_brief`, and **technical JSON** tucked under “Technical details”.  
+4. If variances block autonomy, use **Confirm inventory update**. Same origin as the API — no CORS setup.
 
 ### API summary
 
@@ -130,8 +130,8 @@ Open **http://localhost:8000/docs** for interactive API docs.
 | `GET /health` | Liveness |
 | `GET /health/ready` | `gemini_configured` / `unkey_server_ready` flags (no secret values) |
 | `GET /api/about` | Judge-facing sponsor + rubric hooks (JSON) |
-| `POST /api/agent/run` | **Full agent path** — multipart `file`, form `auto_sync_when_clean`, header `X-API-Key` when Unkey enabled |
-| `POST /api/analyze` | Multimodal analysis only (no auto sync) |
+| `POST /api/agent/run` | **Full agent path** — multipart `file`, form `auto_sync_when_clean`, header `X-API-Key` when Unkey enabled; includes **`operator_brief`** (human copy + step states) for UIs |
+| `POST /api/analyze` | Multimodal analysis only; includes **`operator_brief`** |
 | `POST /api/inventory/sync` | HITL-approved sync — JSON body + `X-API-Key` |
 | `POST /mock/vori/receiving` | Stand-in grocery/ERP webhook |
 
