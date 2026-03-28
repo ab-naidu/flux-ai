@@ -1,7 +1,6 @@
 """
 Autonomous receiving pipeline for hackathon Autonomy rubric:
-one upload → multimodal analyze → if no variance, sync without extra UI steps.
-If variance exists, return HITL state (frontend + Assistant UI approves, then POST /api/inventory/sync).
+one upload → Railtracks Flow (multimodal node → policy → optional sync node).
 """
 
 from typing import Annotated
@@ -9,26 +8,10 @@ from typing import Annotated
 from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 
 from app.deps import ensure_unkey_validated
-from app.schemas import InventorySyncRequest, InventorySyncResponse
-from app.services.gemini_service import analyze_delivery_image
-from app.services.inventory_service import perform_inventory_sync
-from app.services.operator_brief import brief_for_agent
+from app.services.receiving_flow import execute_receiving_flow
 from app.services.railtracks import trace
 
 router = APIRouter(prefix="/api/agent", tags=["agent"])
-
-
-def _needs_hitl(line_items: list[dict]) -> bool:
-    for row in line_items:
-        v = row.get("variance")
-        if v is None:
-            continue
-        try:
-            if int(v) != 0:
-                return True
-        except (TypeError, ValueError):
-            return True
-    return False
 
 
 @router.post("/run")
@@ -39,7 +22,7 @@ async def agent_run(
 ) -> dict:
     """
     Validates Unkey first (NFR: no mutation path without Unkey when enabled).
-    When variances are all zero (or null), optionally performs inventory sync automatically.
+    Runs the receiving agent as a Railtracks Flow (see ``app.services.receiving_flow``).
     """
     await ensure_unkey_validated(x_api_key)
 
@@ -55,65 +38,13 @@ async def agent_run(
         {"filename": file.filename, "bytes": len(raw), "auto_sync": auto_sync_when_clean},
     ) as master_trace_id:
         try:
-            cognitive = analyze_delivery_image(raw, mime_type=mime)
+            return await execute_receiving_flow(
+                raw,
+                mime,
+                auto_sync_when_clean,
+                master_trace_id,
+            )
         except RuntimeError as e:
             raise HTTPException(status_code=503, detail=str(e)) from e
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Analysis failed: {e!s}") from e
-
-        line_items = cognitive.get("line_items") or []
-        hitl = _needs_hitl(line_items)
-
-        out: dict = {
-            "trace_id": master_trace_id,
-            "autonomy": "paused_for_hitl" if hitl else "completed_without_manual_steps",
-            "line_items": line_items,
-            "notes": cognitive.get("notes") or "",
-            "sync": None,
-        }
-
-        if hitl or not auto_sync_when_clean:
-            out["next_step"] = (
-                "Review the variance table, then confirm inventory update in the app (or POST /api/inventory/sync)."
-            )
-            out["operator_brief"] = brief_for_agent(
-                hitl=hitl,
-                auto_sync_when_clean=auto_sync_when_clean,
-                autonomy=str(out["autonomy"]),
-                sync_ok=None,
-            )
-            return out
-
-        sync_body = InventorySyncRequest(
-            approved=True,
-            line_items=line_items,
-            notes=cognitive.get("notes"),
-            trace_id=master_trace_id,
-        )
-        sync_result: InventorySyncResponse = await perform_inventory_sync(sync_body)
-        out["sync"] = sync_result.model_dump()
-        out["autonomy"] = "auto_executed_inventory_sync"
-        sync_ok = bool(sync_result.ok)
-        if sync_ok:
-            out["operator_brief"] = brief_for_agent(
-                hitl=False,
-                auto_sync_when_clean=True,
-                autonomy="auto_executed_inventory_sync",
-                sync_ok=True,
-            )
-        else:
-            out["operator_brief"] = {
-                "headline": "Vision succeeded — inventory update failed",
-                "subtext": (
-                    "The agent compared invoice to scene and attempted a gated write, but the downstream "
-                    "system did not accept it. Check API logs or mock URL configuration."
-                ),
-                "next_action": "Inspect the sync block in the response or fix the target endpoint.",
-                "steps": [
-                    {"id": "upload", "label": "Photo received", "state": "done"},
-                    {"id": "vision", "label": "Gemini read invoice + scene", "state": "done"},
-                    {"id": "compare", "label": "Variance check", "state": "done"},
-                    {"id": "sync", "label": "Inventory update", "state": "error"},
-                ],
-            }
-        return out
+            raise HTTPException(status_code=500, detail=f"Agent run failed: {e!s}") from e

@@ -56,7 +56,7 @@ In short: **one image in → structured variance out → safe sync when policy a
 |---------|------------------|
 | **Google Gemini** | Vision + structured extraction from invoice + pallet imagery. |
 | **Unkey** | Validates `X-API-Key` before agent run and inventory sync. |
-| **Railtracks-style traces** | `trace_id` on responses; optional `RAILTRACKS_WEBHOOK_URL` for span JSON. |
+| **Railtracks** | [RailtownAI/railtracks](https://github.com/RailtownAI/railtracks) **Flow** + `function_node` tools (`receiving_flow.py`); `railtracks` object on `/api/agent/run`; plus `trace_id` / optional `RAILTRACKS_WEBHOOK_URL`. |
 | **DigitalOcean** | Production hosting for the API container. |
 | **Lovable** | Optional external UI scaffold (not required for the bundled demo). |
 | **Assistant UI** | Optional embedded chat UX on a separate frontend. |

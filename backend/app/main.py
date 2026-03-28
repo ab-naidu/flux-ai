@@ -17,8 +17,8 @@ from app.routers import agent, analyze, inventory, meta, mock_target
 logging.basicConfig(level=logging.INFO)
 
 SPONSOR_TOOL_HEADER = (
-    "google-gemini; unkey; railtracks-traces; digitalocean-ready; "
-    "bundled-ui-/ui"
+    "google-gemini; unkey; railtracks-framework-RailtownAI; railtracks-traces; "
+    "digitalocean-ready; bundled-ui-/ui"
 )
 
 

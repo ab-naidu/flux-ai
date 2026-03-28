@@ -27,7 +27,10 @@ async def about() -> dict:
                 "not text-only agents; closes receiving reality–data gap with vision + gated ERP write"
             ),
             "technical": "FastAPI end-to-end, structured JSON from Gemini, Unkey-gated mutations, mock ERP webhook",
-            "tool_use": "Gemini + Unkey + trace IDs (Railtracks-style webhook optional) + DO container + bundled /ui",
+            "tool_use": (
+                "Gemini + Unkey + Railtracks Flow (github.com/RailtownAI/railtracks) "
+                "+ trace IDs / webhook + DO + bundled /ui"
+            ),
             "presentation": (
                 "GET / or /ui/ — guided operator UI with loading narrative, outcome copy (operator_brief), "
                 "and collapsible JSON; DEMO_SCRIPT.md for video"
@@ -43,8 +46,11 @@ async def about() -> dict:
                 "evidence": "X-API-Key on /api/agent/run and /api/inventory/sync; server UNKEY_ROOT_KEY for verify API",
             },
             {
-                "sponsor": "Railtracks (agent traces)",
-                "evidence": "trace_id on responses; optional RAILTRACKS_WEBHOOK_URL JSON spans",
+                "sponsor": "Railtracks (agentic framework)",
+                "evidence": (
+                    "Receiving pipeline is a Railtracks Flow with function_node tools "
+                    "(rt_step_multimodal_extract, rt_step_post_inventory); response.railtracks meta"
+                ),
             },
             {
                 "sponsor": "DigitalOcean",

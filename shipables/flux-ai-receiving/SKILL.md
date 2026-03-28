@@ -9,7 +9,7 @@ license: MIT
 compatibility: Requires network access for Gemini, Unkey verify, and optional webhooks.
 metadata:
   author: ab-naidu
-  version: "1.0.2"
+  version: "1.0.3"
 ---
 
 # Flux AI — Multimodal receiving auditor
@@ -20,7 +20,7 @@ metadata:
 
 1. **Google Gemini** — `POST /api/analyze` or autonomous `POST /api/agent/run` (vision + JSON extraction).
 2. **Unkey** — `X-API-Key` on `/api/inventory/sync` and `/api/agent/run` (verify via Unkey API when enabled).
-3. **Railtracks** — span IDs + optional `RAILTRACKS_WEBHOOK_URL` JSON events for agent auditability.
+3. **Railtracks** — official framework ([RailtownAI/railtracks](https://github.com/RailtownAI/railtracks)): `Flow` + `function_node` pipeline in `app/services/receiving_flow.py`; span/trace IDs + optional `RAILTRACKS_WEBHOOK_URL`.
 4. **DigitalOcean** — deploy `backend/Dockerfile` (Droplet / App Platform).
 5. **Custom frontend (optional)** — any SPA calling the same API; set `CORS_ORIGINS` for that origin.
 
